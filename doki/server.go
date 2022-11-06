@@ -212,7 +212,7 @@ func (s *Server) GetPacket() iface.IDataPack {
 
 func printLogo() {
 	fmt.Println(logo)
-	fmt.Printf("[Dokidoki] Version: %s, MaxConn: %d, MaxPacketSize: %d\n",
+	fmt.Printf("[Doki] Version: %s, MaxConn: %d, MaxPacketSize: %d\n",
 		conf.GlobalConfObject.Version,
 		conf.GlobalConfObject.MaxConn,
 		conf.GlobalConfObject.MaxPacketSize)
