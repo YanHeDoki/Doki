@@ -47,10 +47,10 @@ type Server struct {
 
 //DefaultServer 初始化默认server服务器方法
 func DefaultServer() iface.IServer {
-	//打印logo
-	printLogo()
 	//读取配置
 	conf.ConfigInit()
+	//打印logo
+	printLogo()
 	return &Server{ //报错不能返回这个类型
 		Name:       conf.GlobalConfObject.Name,
 		IPVersion:  "tcp4",
