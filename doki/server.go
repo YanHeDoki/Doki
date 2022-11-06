@@ -194,14 +194,12 @@ func (s *Server) SetOnConnStop(hookFunc func(iface.IConnection)) {
 
 func (s *Server) CallOnConnStart(conn iface.IConnection) {
 	if s.OnConnStart != nil {
-		fmt.Println("CallOnConnStart ")
 		s.OnConnStart(conn)
 	}
 }
 
 func (s *Server) CallOnConnStop(conn iface.IConnection) {
 	if s.OnConnStop != nil {
-		fmt.Println("CallOnConnStop ")
 		s.OnConnStop(conn)
 	}
 }

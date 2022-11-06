@@ -42,7 +42,6 @@ func (m *MsgHandle) AddRouter(msgId uint32, handler ...iface.RouterHandler) {
 	m.Apis[msgId] = &Router{}
 	m.Apis[msgId].Reset()
 	m.Apis[msgId].AddHandler(handler...)
-	fmt.Println("Add api msgId = ", msgId)
 }
 
 func (m *MsgHandle) StartWorkerPool() {
@@ -59,9 +58,8 @@ func (m *MsgHandle) StartWorkerPool() {
 }
 
 func (m *MsgHandle) startOneWorker(workerId uint32) {
-	fmt.Println("start worker for ", workerId)
-	//不断的阻塞去等代消息
 
+	//不断的阻塞去等代消息
 	for {
 		select {
 		//根据id去结构体中取到对应的消息队列来消费，如果管道中有消息的话
