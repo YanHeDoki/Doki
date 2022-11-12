@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/YanHeDoki/Doki/conf"
-	"github.com/YanHeDoki/Doki/iface"
 	"github.com/YanHeDoki/Doki/pack"
 	"net"
 )
@@ -31,22 +30,22 @@ type Server struct {
 	exitChan chan struct{}
 	//当前的对象添加一个router server注册的链接对应的业务
 	//当前Server的消息管理模块，用来绑定MsgId和对应的router
-	MsgHandler iface.IMsgHandle
+	MsgHandler IMsgHandle
 	//该server的连接管理器
-	ConnMgr iface.IConnManager
+	ConnMgr IConnManager
 
 	//新增两个hook函数原型
 	//该Server的连接创建时Hook函数
-	OnConnStart func(conn iface.IConnection)
+	OnConnStart func(conn IConnection)
 	//该Server的连接断开时的Hook函数
-	OnConnStop func(conn iface.IConnection)
+	OnConnStop func(conn IConnection)
 
 	//拆封包工具
-	packet iface.IDataPack
+	packet IDataPack
 }
 
 //DefaultServer 初始化默认server服务器方法
-func DefaultServer() iface.IServer {
+func DefaultServer() IServer {
 	//读取配置
 	conf.ConfigInit()
 	//打印logo
@@ -63,10 +62,11 @@ func DefaultServer() iface.IServer {
 	}
 }
 
-func NewServer(config *conf.Config) iface.IServer {
+func NewServer(config *conf.Config) IServer {
 	//打印logo
 	printLogo()
-
+	//注入用户配置
+	conf.UserConfInit(config)
 	s := &Server{
 		Name:       config.Name,
 		IPVersion:  config.TcpVersion,
@@ -77,7 +77,7 @@ func NewServer(config *conf.Config) iface.IServer {
 		exitChan:   nil,
 	}
 	if config.UserPack == nil {
-		s.packet = pack.Factory().NewPack(iface.StdDataPack)
+		s.packet = pack.Factory().NewPack(StdDataPack)
 	} else {
 		s.packet = config.UserPack
 	}
@@ -172,39 +172,39 @@ func (s *Server) Server() {
 }
 
 //新方法
-func (s *Server) AddRouter(msgId uint32, router ...iface.RouterHandler) {
+func (s *Server) AddRouter(msgId uint32, router ...RouterHandler) {
 	s.MsgHandler.AddRouter(msgId, router...)
 }
 
-func (s *Server) GetConnMgr() iface.IConnManager {
+func (s *Server) GetConnMgr() IConnManager {
 	return s.ConnMgr
 }
 
-func (s *Server) GetMsgHandler() iface.IMsgHandle {
+func (s *Server) GetMsgHandler() IMsgHandle {
 	return s.MsgHandler
 }
 
-func (s *Server) SetOnConnStart(hookFunc func(iface.IConnection)) {
+func (s *Server) SetOnConnStart(hookFunc func(IConnection)) {
 	s.OnConnStart = hookFunc
 }
 
-func (s *Server) SetOnConnStop(hookFunc func(iface.IConnection)) {
+func (s *Server) SetOnConnStop(hookFunc func(IConnection)) {
 	s.OnConnStop = hookFunc
 }
 
-func (s *Server) CallOnConnStart(conn iface.IConnection) {
+func (s *Server) CallOnConnStart(conn IConnection) {
 	if s.OnConnStart != nil {
 		s.OnConnStart(conn)
 	}
 }
 
-func (s *Server) CallOnConnStop(conn iface.IConnection) {
+func (s *Server) CallOnConnStop(conn IConnection) {
 	if s.OnConnStop != nil {
 		s.OnConnStop(conn)
 	}
 }
 
-func (s *Server) GetPacket() iface.IDataPack {
+func (s *Server) GetPacket() IDataPack {
 	return s.packet
 }
 

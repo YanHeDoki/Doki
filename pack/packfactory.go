@@ -1,7 +1,7 @@
 package pack
 
 import (
-	"github.com/YanHeDoki/Doki/iface"
+	"github.com/YanHeDoki/Doki/doki"
 	"sync"
 )
 
@@ -23,12 +23,12 @@ func Factory() *pack_factory {
 }
 
 //NewPack 创建一个具体的拆包解包对象
-func (f *pack_factory) NewPack(kind string) iface.IDataPack {
-	var dataPack iface.IDataPack
+func (f *pack_factory) NewPack(kind string) doki.IDataPack {
+	var dataPack doki.IDataPack
 
 	switch kind {
 	// 标准默认封包拆包方式
-	case iface.StdDataPack:
+	case doki.StdDataPack:
 		dataPack = NewDataPack()
 
 		//case 自定义封包拆包方式case

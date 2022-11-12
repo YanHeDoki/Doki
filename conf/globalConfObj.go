@@ -2,7 +2,7 @@ package conf
 
 import (
 	"encoding/json"
-	"github.com/YanHeDoki/Doki/iface"
+	"github.com/YanHeDoki/Doki/doki"
 	"io/ioutil"
 	"os"
 )
@@ -13,10 +13,10 @@ import (
 type GlobalObj struct {
 
 	//Server
-	TcpServer iface.IServer //当前全局的Server对象
-	Host      string        //当前服务器主机监听的IP
-	TcpPort   int           //当前服务器监听的端口
-	Name      string        //当前服务器的名称
+	TcpServer doki.IServer //当前全局的Server对象
+	Host      string       //当前服务器主机监听的IP
+	TcpPort   int          //当前服务器监听的端口
+	Name      string       //当前服务器的名称
 
 	//服务器可选配置
 	Version          string //版本
@@ -77,9 +77,24 @@ func ConfigInit() {
 		MaxPacketSize:    4096,
 		MaxWorkerTaskLen: 1024,
 		MaxMsgChanLen:    100,
-		PacketName:       iface.StdDataPack,
+		PacketName:       doki.StdDataPack,
 	}
 
 	//应该尝试从配置文件中的用户自定义的文件中读取
 	GlobalConfObject.Reload()
+}
+
+func UserConfInit(config *Config) {
+	//如果配置文件没有加载就是默认值
+	GlobalConfObject = &GlobalObj{
+		Name:             config.Name,
+		Version:          config.Version,
+		Host:             config.Host,
+		TcpPort:          config.TcpPort,
+		WorkerPoolSize:   config.WorkerPoolSize,
+		MaxConn:          config.MaxConn,
+		MaxPacketSize:    config.MaxPacketSize,
+		MaxWorkerTaskLen: config.MaxWorkerTaskLen,
+		MaxMsgChanLen:    config.MaxMsgChanLen,
+	}
 }

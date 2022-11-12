@@ -1,15 +1,13 @@
 package doki
 
-import (
-	"github.com/YanHeDoki/Doki/iface"
-)
-
+//尝试修改中
+type RouterHandler func(router IRouter, request IRequest)
 type Router struct {
 	index    int8 //函数索引
-	handlers []iface.RouterHandler
+	handlers []RouterHandler
 }
 
-func (r *Router) Next(request iface.IRequest) {
+func (r *Router) Next(request IRequest) {
 	r.index++
 	for r.index < int8(len(r.handlers)) {
 		r.handlers[r.index](r, request)
@@ -27,12 +25,12 @@ func (r *Router) IsAbort() bool {
 
 func (r *Router) Reset() {
 	r.index = -1
-	r.handlers = make([]iface.RouterHandler, 0, 1)
+	r.handlers = make([]RouterHandler, 0, 1)
 }
 
 func (r *Router) Reindx() {
 	r.index = -1
 }
-func (r *Router) AddHandler(handler ...iface.RouterHandler) {
+func (r *Router) AddHandler(handler ...RouterHandler) {
 	r.handlers = append(r.handlers, handler...)
 }

@@ -1,4 +1,4 @@
-package iface
+package doki
 
 type IMessage interface {
 	//获取消息的ID

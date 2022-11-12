@@ -3,26 +3,25 @@ package doki
 import (
 	"fmt"
 	"github.com/YanHeDoki/Doki/conf"
-	"github.com/YanHeDoki/Doki/iface"
 	"strconv"
 )
 
 type MsgHandle struct {
-	Apis           map[uint32]*Router    //路由模块
-	WorkerPoolSize uint32                //业务工作Worker池的数量
-	TaskQueue      []chan iface.IRequest //Worker负责取任务的消息队列
+	Apis           map[uint32]*Router //路由模块
+	WorkerPoolSize uint32             //业务工作Worker池的数量
+	TaskQueue      []chan IRequest    //Worker负责取任务的消息队列
 }
 
 func NewMsgHandle() *MsgHandle {
 	return &MsgHandle{
 		Apis:           make(map[uint32]*Router),
 		WorkerPoolSize: conf.GlobalConfObject.WorkerPoolSize,
-		TaskQueue:      make([]chan iface.IRequest, conf.GlobalConfObject.WorkerPoolSize), //注意一个消息队列对应一个worker池子
+		TaskQueue:      make([]chan IRequest, conf.GlobalConfObject.WorkerPoolSize), //注意一个消息队列对应一个worker池子
 	}
 }
 
 //尝试修改msghandler
-func (m *MsgHandle) DoMsgHandler(request iface.IRequest) {
+func (m *MsgHandle) DoMsgHandler(request IRequest) {
 	router, ok := m.Apis[request.GetMsgId()]
 	if !ok {
 		fmt.Println("not find Router In Apis")
@@ -32,7 +31,7 @@ func (m *MsgHandle) DoMsgHandler(request iface.IRequest) {
 	router.Next(request)
 }
 
-func (m *MsgHandle) AddRouter(msgId uint32, handler ...iface.RouterHandler) {
+func (m *MsgHandle) AddRouter(msgId uint32, handler ...RouterHandler) {
 	//1 判断当前msg绑定的API处理方法是否已经存在
 	if _, ok := m.Apis[msgId]; ok {
 		panic("repeated api , msgId = " + strconv.Itoa(int(msgId)))
@@ -51,7 +50,7 @@ func (m *MsgHandle) StartWorkerPool() {
 		//一个worker被启动
 		//1.当前的worker对应的channel消息队列 开辟对应的空间 0号worker对应0号channel
 		//用MaxWorkerTaskLen限制一个管道最多接受多少条消息
-		m.TaskQueue[i] = make(chan iface.IRequest, conf.GlobalConfObject.MaxWorkerTaskLen)
+		m.TaskQueue[i] = make(chan IRequest, conf.GlobalConfObject.MaxWorkerTaskLen)
 		go m.startOneWorker(i)
 	}
 
@@ -70,7 +69,7 @@ func (m *MsgHandle) startOneWorker(workerId uint32) {
 
 }
 
-func (m *MsgHandle) SendMsgToTaskQueue(request iface.IRequest) {
+func (m *MsgHandle) SendMsgToTaskQueue(request IRequest) {
 	//将消息平均的分配给woroker
 	//根据客户端建立的连接id来判断
 	workerId := request.GetConnection().GetConnID() % m.WorkerPoolSize

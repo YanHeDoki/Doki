@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/YanHeDoki/Doki/conf"
-	"github.com/YanHeDoki/Doki/iface"
+	"github.com/YanHeDoki/Doki/doki"
 	"io"
 )
 
@@ -25,17 +25,17 @@ func (d *DataPack) GetHeadLen() uint32 {
 }
 
 //Pack 封包方法(压缩数据)
-func (d *DataPack) Pack(msg iface.IMessage) ([]byte, error) {
+func (d *DataPack) Pack(msg doki.IMessage) ([]byte, error) {
 	//创建一个存放bytes字节的缓冲
 	dataBuff := bytes.NewBuffer([]byte{})
 
-	//将data长度封装进去
-	if err := binary.Write(dataBuff, binary.LittleEndian, msg.GetDataLen()); err != nil {
+	//将data id 封装进去
+	if err := binary.Write(dataBuff, binary.LittleEndian, msg.GetMsgId()); err != nil {
 		return nil, err
 	}
 
-	//将data id 封装进去
-	if err := binary.Write(dataBuff, binary.LittleEndian, msg.GetMsgId()); err != nil {
+	//将data长度封装进去
+	if err := binary.Write(dataBuff, binary.LittleEndian, msg.GetDataLen()); err != nil {
 		return nil, err
 	}
 
@@ -47,7 +47,7 @@ func (d *DataPack) Pack(msg iface.IMessage) ([]byte, error) {
 }
 
 //UnPack 拆包方法 （将包的head信息读取）之后再根据head里的len信息读取信息
-func (d *DataPack) UnPack(conn io.Reader) (iface.IMessage, error) {
+func (d *DataPack) UnPack(conn io.Reader) (doki.IMessage, error) {
 
 	headBuff := make([]byte, d.GetHeadLen())
 	_, err := io.ReadFull(conn, headBuff)
@@ -61,13 +61,13 @@ func (d *DataPack) UnPack(conn io.Reader) (iface.IMessage, error) {
 
 	//只解压head信息的到len和id
 	msg := &Message{}
-	//读取datalen
-	if err := binary.Read(dataBuff, binary.LittleEndian, &msg.DataLen); err != nil {
+	//读取id
+	if err := binary.Read(dataBuff, binary.LittleEndian, &msg.Id); err != nil {
 		return nil, err
 	}
 
-	//读取id
-	if err := binary.Read(dataBuff, binary.LittleEndian, &msg.Id); err != nil {
+	//读取datalen
+	if err := binary.Read(dataBuff, binary.LittleEndian, &msg.DataLen); err != nil {
 		return nil, err
 	}
 

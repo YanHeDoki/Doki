@@ -1,4 +1,4 @@
-package iface
+package doki
 
 /*
 	消息管理抽象层

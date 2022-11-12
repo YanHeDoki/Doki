@@ -1,4 +1,4 @@
-package iface
+package doki
 
 import "io"
 
