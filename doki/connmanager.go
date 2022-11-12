@@ -4,24 +4,25 @@ import (
 	"errors"
 	"fmt"
 	"github.com/YanHeDoki/Doki/conf"
+	"github.com/YanHeDoki/Doki/dokiIF"
 	"sync"
 )
 
 //链接管理模块
 
 type ConnManager struct {
-	connections map[uint32]IConnection
+	connections map[uint32]dokiIF.IConnection
 	connLock    sync.RWMutex
 }
 
 func NewConnManager() *ConnManager {
 	return &ConnManager{
-		connections: make(map[uint32]IConnection, conf.GlobalConfObject.MaxConn/2),
+		connections: make(map[uint32]dokiIF.IConnection, conf.GlobalConfObject.MaxConn/2),
 	}
 
 }
 
-func (c *ConnManager) Add(connection IConnection) {
+func (c *ConnManager) Add(connection dokiIF.IConnection) {
 	//保护共享资源 加锁
 	c.connLock.Lock()
 	defer c.connLock.Unlock()
@@ -29,7 +30,7 @@ func (c *ConnManager) Add(connection IConnection) {
 	fmt.Println("ADD conn to manager success")
 }
 
-func (c *ConnManager) Remove(connection IConnection) {
+func (c *ConnManager) Remove(connection dokiIF.IConnection) {
 	//保护共享资源 加锁
 	c.connLock.Lock()
 	delete(c.connections, connection.GetConnID())
@@ -37,7 +38,7 @@ func (c *ConnManager) Remove(connection IConnection) {
 	fmt.Println("Remove conn to manager success")
 }
 
-func (c *ConnManager) Get(connId uint32) (IConnection, error) {
+func (c *ConnManager) Get(connId uint32) (dokiIF.IConnection, error) {
 	//保护共享资源 加锁
 	c.connLock.RLock()
 	defer c.connLock.RUnlock()

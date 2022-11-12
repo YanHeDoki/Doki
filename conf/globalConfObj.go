@@ -2,7 +2,8 @@ package conf
 
 import (
 	"encoding/json"
-	"github.com/YanHeDoki/Doki/doki"
+	"github.com/YanHeDoki/Doki/constants"
+	"github.com/YanHeDoki/Doki/dokiIF"
 	"io/ioutil"
 	"os"
 )
@@ -13,10 +14,10 @@ import (
 type GlobalObj struct {
 
 	//Server
-	TcpServer doki.IServer //当前全局的Server对象
-	Host      string       //当前服务器主机监听的IP
-	TcpPort   int          //当前服务器监听的端口
-	Name      string       //当前服务器的名称
+	TcpServer dokiIF.IServer //当前全局的Server对象
+	Host      string         //当前服务器主机监听的IP
+	TcpPort   int            //当前服务器监听的端口
+	Name      string         //当前服务器的名称
 
 	//服务器可选配置
 	Version          string //版本
@@ -77,7 +78,7 @@ func ConfigInit() {
 		MaxPacketSize:    4096,
 		MaxWorkerTaskLen: 1024,
 		MaxMsgChanLen:    100,
-		PacketName:       doki.StdDataPack,
+		PacketName:       constants.StdDataPack,
 	}
 
 	//应该尝试从配置文件中的用户自定义的文件中读取

@@ -1,4 +1,4 @@
-package doki
+package dokiIF
 
 import (
 	"context"

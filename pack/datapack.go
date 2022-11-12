@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/YanHeDoki/Doki/conf"
-	"github.com/YanHeDoki/Doki/doki"
+	"github.com/YanHeDoki/Doki/dokiIF"
 	"io"
 )
 
@@ -25,7 +25,7 @@ func (d *DataPack) GetHeadLen() uint32 {
 }
 
 //Pack 封包方法(压缩数据)
-func (d *DataPack) Pack(msg doki.IMessage) ([]byte, error) {
+func (d *DataPack) Pack(msg dokiIF.IMessage) ([]byte, error) {
 	//创建一个存放bytes字节的缓冲
 	dataBuff := bytes.NewBuffer([]byte{})
 
@@ -47,7 +47,7 @@ func (d *DataPack) Pack(msg doki.IMessage) ([]byte, error) {
 }
 
 //UnPack 拆包方法 （将包的head信息读取）之后再根据head里的len信息读取信息
-func (d *DataPack) UnPack(conn io.Reader) (doki.IMessage, error) {
+func (d *DataPack) UnPack(conn io.Reader) (dokiIF.IMessage, error) {
 
 	headBuff := make([]byte, d.GetHeadLen())
 	_, err := io.ReadFull(conn, headBuff)

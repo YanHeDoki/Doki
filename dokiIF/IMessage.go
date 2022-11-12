@@ -1,4 +1,4 @@
-package doki
+package dokiIF
 
 type IMessage interface {
 	//获取消息的ID

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/YanHeDoki/Doki/conf"
+	"github.com/YanHeDoki/Doki/constants"
+	"github.com/YanHeDoki/Doki/dokiIF"
 	"github.com/YanHeDoki/Doki/pack"
 	"net"
 )
@@ -30,22 +32,22 @@ type Server struct {
 	exitChan chan struct{}
 	//当前的对象添加一个router server注册的链接对应的业务
 	//当前Server的消息管理模块，用来绑定MsgId和对应的router
-	MsgHandler IMsgHandle
+	MsgHandler dokiIF.IMsgHandle
 	//该server的连接管理器
-	ConnMgr IConnManager
+	ConnMgr dokiIF.IConnManager
 
 	//新增两个hook函数原型
 	//该Server的连接创建时Hook函数
-	OnConnStart func(conn IConnection)
+	OnConnStart func(conn dokiIF.IConnection)
 	//该Server的连接断开时的Hook函数
-	OnConnStop func(conn IConnection)
+	OnConnStop func(conn dokiIF.IConnection)
 
 	//拆封包工具
-	packet IDataPack
+	packet dokiIF.IDataPack
 }
 
 //DefaultServer 初始化默认server服务器方法
-func DefaultServer() IServer {
+func DefaultServer() dokiIF.IServer {
 	//读取配置
 	conf.ConfigInit()
 	//打印logo
@@ -62,7 +64,7 @@ func DefaultServer() IServer {
 	}
 }
 
-func NewServer(config *conf.Config) IServer {
+func NewServer(config *conf.Config) dokiIF.IServer {
 	//打印logo
 	printLogo()
 	//注入用户配置
@@ -77,7 +79,7 @@ func NewServer(config *conf.Config) IServer {
 		exitChan:   nil,
 	}
 	if config.UserPack == nil {
-		s.packet = pack.Factory().NewPack(StdDataPack)
+		s.packet = pack.Factory().NewPack(constants.StdDataPack)
 	} else {
 		s.packet = config.UserPack
 	}
@@ -172,39 +174,39 @@ func (s *Server) Server() {
 }
 
 //新方法
-func (s *Server) AddRouter(msgId uint32, router ...RouterHandler) {
+func (s *Server) AddRouter(msgId uint32, router ...dokiIF.RouterHandler) {
 	s.MsgHandler.AddRouter(msgId, router...)
 }
 
-func (s *Server) GetConnMgr() IConnManager {
+func (s *Server) GetConnMgr() dokiIF.IConnManager {
 	return s.ConnMgr
 }
 
-func (s *Server) GetMsgHandler() IMsgHandle {
+func (s *Server) GetMsgHandler() dokiIF.IMsgHandle {
 	return s.MsgHandler
 }
 
-func (s *Server) SetOnConnStart(hookFunc func(IConnection)) {
+func (s *Server) SetOnConnStart(hookFunc func(dokiIF.IConnection)) {
 	s.OnConnStart = hookFunc
 }
 
-func (s *Server) SetOnConnStop(hookFunc func(IConnection)) {
+func (s *Server) SetOnConnStop(hookFunc func(dokiIF.IConnection)) {
 	s.OnConnStop = hookFunc
 }
 
-func (s *Server) CallOnConnStart(conn IConnection) {
+func (s *Server) CallOnConnStart(conn dokiIF.IConnection) {
 	if s.OnConnStart != nil {
 		s.OnConnStart(conn)
 	}
 }
 
-func (s *Server) CallOnConnStop(conn IConnection) {
+func (s *Server) CallOnConnStop(conn dokiIF.IConnection) {
 	if s.OnConnStop != nil {
 		s.OnConnStop(conn)
 	}
 }
 
-func (s *Server) GetPacket() IDataPack {
+func (s *Server) GetPacket() dokiIF.IDataPack {
 	return s.packet
 }
 

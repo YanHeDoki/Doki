@@ -1,4 +1,4 @@
-package doki
+package dokiIF
 
 //连接管理模块
 

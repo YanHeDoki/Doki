@@ -1,13 +1,13 @@
 package doki
 
-//尝试修改中
-type RouterHandler func(router IRouter, request IRequest)
+import "github.com/YanHeDoki/Doki/dokiIF"
+
 type Router struct {
 	index    int8 //函数索引
-	handlers []RouterHandler
+	handlers []dokiIF.RouterHandler
 }
 
-func (r *Router) Next(request IRequest) {
+func (r *Router) Next(request dokiIF.IRequest) {
 	r.index++
 	for r.index < int8(len(r.handlers)) {
 		r.handlers[r.index](r, request)
@@ -25,12 +25,12 @@ func (r *Router) IsAbort() bool {
 
 func (r *Router) Reset() {
 	r.index = -1
-	r.handlers = make([]RouterHandler, 0, 1)
+	r.handlers = make([]dokiIF.RouterHandler, 0, 1)
 }
 
 func (r *Router) Reindx() {
 	r.index = -1
 }
-func (r *Router) AddHandler(handler ...RouterHandler) {
+func (r *Router) AddHandler(handler ...dokiIF.RouterHandler) {
 	r.handlers = append(r.handlers, handler...)
 }

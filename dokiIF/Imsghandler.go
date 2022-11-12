@@ -1,4 +1,4 @@
-package doki
+package dokiIF
 
 /*
 	消息管理抽象层

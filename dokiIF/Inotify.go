@@ -1,4 +1,4 @@
-package doki
+package dokiIF
 
 type Inotify interface {
 	//通知某个id的方法

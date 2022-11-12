@@ -2,7 +2,7 @@ package Notify
 
 import (
 	"fmt"
-	"github.com/YanHeDoki/Doki/doki"
+	"github.com/YanHeDoki/Doki/dokiIF"
 	"sync"
 )
 
@@ -13,22 +13,22 @@ type notify struct {
 
 func NewNotify() *notify {
 	return &notify{
-		cimap: make(map[uint64]doki.IConnection, 100),
+		cimap: make(map[uint64]dokiIF.IConnection, 100),
 	}
 }
 
-func (n *notify) SetNotifyID(Id uint64, conn doki.IConnection) {
+func (n *notify) SetNotifyID(Id uint64, conn dokiIF.IConnection) {
 	n.look.Lock()
 	defer n.look.RLock()
 	n.cimap[Id] = conn
 }
-func (n *notify) GetNotifyByID(Id uint64) doki.IConnection {
+func (n *notify) GetNotifyByID(Id uint64) dokiIF.IConnection {
 	n.look.RLock()
 	defer n.look.RLock()
 	return n.cimap[Id]
 }
 
-func (n *notify) NotifyToConnByID(Id uint64, msg doki.IMessage) error {
+func (n *notify) NotifyToConnByID(Id uint64, msg dokiIF.IMessage) error {
 	err := n.cimap[Id].SendMsg(msg.GetMsgId(), msg.GetData())
 	if err != nil {
 		fmt.Println("Notify to", Id, "err:", err)
@@ -37,7 +37,7 @@ func (n *notify) NotifyToConnByID(Id uint64, msg doki.IMessage) error {
 	return nil
 }
 
-func (n *notify) NotifyAll(msg doki.IMessage) error {
+func (n *notify) NotifyAll(msg dokiIF.IMessage) error {
 	for id, v := range n.cimap {
 		err := v.SendMsg(msg.GetMsgId(), msg.GetData())
 		if err != nil {
@@ -48,7 +48,7 @@ func (n *notify) NotifyAll(msg doki.IMessage) error {
 	return nil
 }
 
-func (n *notify) NotifyBuffToConnByID(Id uint64, msg doki.IMessage) error {
+func (n *notify) NotifyBuffToConnByID(Id uint64, msg dokiIF.IMessage) error {
 	err := n.cimap[Id].SendBuffMsg(msg.GetMsgId(), msg.GetData())
 	if err != nil {
 		fmt.Println("Notify to", Id, "err:", err)
@@ -57,7 +57,7 @@ func (n *notify) NotifyBuffToConnByID(Id uint64, msg doki.IMessage) error {
 	return nil
 }
 
-func (n *notify) NotifyBuffAll(msg doki.IMessage) error {
+func (n *notify) NotifyBuffAll(msg dokiIF.IMessage) error {
 	for id, v := range n.cimap {
 		err := v.SendBuffMsg(msg.GetMsgId(), msg.GetData())
 		if err != nil {
