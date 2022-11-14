@@ -19,12 +19,12 @@ func NewNotify() *notify {
 
 func (n *notify) SetNotifyID(Id uint64, conn dokiIF.IConnection) {
 	n.look.Lock()
-	defer n.look.RLock()
+	defer n.look.Unlock()
 	n.cimap[Id] = conn
 }
 func (n *notify) GetNotifyByID(Id uint64) dokiIF.IConnection {
 	n.look.RLock()
-	defer n.look.RLock()
+	defer n.look.RUnlock()
 	return n.cimap[Id]
 }
 
