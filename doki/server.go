@@ -65,10 +65,10 @@ func DefaultServer() dokiIF.IServer {
 }
 
 func NewServer(config *conf.Config) dokiIF.IServer {
-	//打印logo
-	printLogo()
 	//注入用户配置
 	conf.UserConfInit(config)
+	//打印logo
+	printLogo()
 	s := &Server{
 		Name:       config.Name,
 		IPVersion:  config.TcpVersion,
