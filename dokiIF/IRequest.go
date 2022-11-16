@@ -10,4 +10,12 @@ type IRequest interface {
 	GetData() []byte
 	//得到消息id
 	GetMsgId() uint32
+
+	BindRouter(IRouter)
+	//执行下一个函数
+	Next()
+	//终结路由函数的执行
+	Abort()
+	//是否终结了函数
+	IsAbort() bool
 }

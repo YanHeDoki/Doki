@@ -28,6 +28,7 @@ func (m *MsgHandle) DoMsgHandler(request dokiIF.IRequest) {
 		fmt.Println("not find Router In Apis")
 		return
 	}
+	request.BindRouter(router)
 	router.Reindx()
 	router.Next(request)
 }

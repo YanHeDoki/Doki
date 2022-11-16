@@ -62,28 +62,12 @@ func (c *Connection) StartReader() {
 		case <-c.ctx.Done():
 			return
 		default: //否则就普通业务操作
-			//headbuf := make([]byte, msgdatapake.GetHeadLen())
-			//_, err := io.ReadFull(c.Conn, headbuf)
-			//if err != nil {
-			//	fmt.Println("read in packhead err:", err)
-			//	return
-			//}
+
 			message, err := c.TcpServer.GetPacket().UnPack(c.Conn)
 			if err != nil {
 				fmt.Println("UnPack err:", err)
 				return
 			}
-
-			//根据datalen的参数再去读取一次
-			//var data []byte
-			//if message.GetDataLen() > 0 {
-			//	data = make([]byte, message.GetDataLen())
-			//	if _, err := io.ReadFull(c.GetTcpConnection(), data); err != nil {
-			//		fmt.Println("read data err:", err)
-			//		return
-			//	}
-			//}
-			//message.SetData(data)
 
 			//得到当前数据的Request 数据
 			req := Request{

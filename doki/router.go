@@ -10,7 +10,7 @@ type Router struct {
 func (r *Router) Next(request dokiIF.IRequest) {
 	r.index++
 	for r.index < int8(len(r.handlers)) {
-		r.handlers[r.index](r, request)
+		r.handlers[r.index](request)
 		r.index++
 	}
 }

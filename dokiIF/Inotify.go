@@ -2,12 +2,12 @@ package dokiIF
 
 type Inotify interface {
 	//通知某个id的方法
-	NotifyToConnByID(Id uint64, msg IMessage) error
+	NotifyToConnByID(Id uint64, MsgId uint32, data []byte) error
 	//通知所有人
-	NotifyAll(msg IMessage) error
+	NotifyAll(MsgId uint32, data []byte) error
 
-	//通知某个id的方法
-	NotifyBuffToConnByID(Id uint64, msg IMessage) error
-	//通知所有人
-	NotifyBuffAll(msg IMessage) error
+	//通过缓冲队列通知某个id的方法
+	NotifyBuffToConnByID(Id uint64, MsgId uint32, data []byte) error
+	//缓冲队列通知所有人
+	NotifyBuffAll(MsgId uint32, data []byte) error
 }

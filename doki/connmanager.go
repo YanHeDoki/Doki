@@ -59,10 +59,11 @@ func (c *ConnManager) Len() int {
 func (c *ConnManager) ClearConn() {
 	c.connLock.Lock()
 	defer c.connLock.Unlock()
-	for connId, conn := range c.connections {
+	for _, conn := range c.connections {
 		//停止这个连接的资源
 		conn.Stop()
-		delete(c.connections, connId)
+		//不必要的删除 连接自己的stop里已经调用删除
+		//delete(c.connections, connId)
 	}
 	fmt.Println("clear ConnManagerMap success")
 }
@@ -76,8 +77,8 @@ func (c *ConnManager) ClearOneConn(connID uint32) {
 	if conn, ok := connections[connID]; ok {
 		//停止
 		conn.Stop()
-		//删除
-		delete(connections, connID)
+		//删除 不必要的删除 连接自己的stop里已经调用删除
+		//delete(connections, connID)
 		fmt.Println("Clear Connections ID:  ", connID, "succeed")
 		return
 	}
