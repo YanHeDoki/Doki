@@ -34,6 +34,12 @@ func (n *notify) GetNotifyByID(Id uint64) (dokiIF.IConnection, error) {
 	return Conn, nil
 }
 
+func (n *notify) DelNotifyByID(Id uint64) {
+	n.look.RLock()
+	defer n.look.RUnlock()
+	delete(n.cimap, Id)
+}
+
 func (n *notify) NotifyToConnByID(Id uint64, MsgId uint32, data []byte) error {
 	Conn, ok := n.cimap[Id]
 	if !ok {
