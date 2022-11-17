@@ -7,6 +7,13 @@ type Router struct {
 	handlers []dokiIF.RouterHandler
 }
 
+func NewRouter() *Router {
+	return &Router{
+		index:    -1,
+		handlers: make([]dokiIF.RouterHandler, 0, 1),
+	}
+}
+
 func (r *Router) Next(request dokiIF.IRequest) {
 	r.index++
 	for r.index < int8(len(r.handlers)) {

@@ -40,9 +40,11 @@ func (m *MsgHandle) AddRouter(msgId uint32, handler ...dokiIF.RouterHandler) {
 	}
 
 	//2 添加msg与api的绑定关系
-	m.Apis[msgId] = &Router{}
-	m.Apis[msgId].Reset()
-	m.Apis[msgId].AddHandler(handler...)
+
+	//优化一次完成再存入map
+	r := NewRouter()
+	r.AddHandler(handler...)
+	m.Apis[msgId] = r
 }
 
 func (m *MsgHandle) StartWorkerPool() {
