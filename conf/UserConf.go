@@ -2,6 +2,7 @@ package conf
 
 import (
 	"github.com/YanHeDoki/Doki/dokiIF"
+	BaseLog "github.com/YanHeDoki/Doki/utils/log"
 )
 
 type Config struct {
@@ -21,4 +22,6 @@ type Config struct {
 	MaxWorkerTaskLen uint32           //业务工作Worker对应负责的任务队列最大任务存储数量
 	MaxMsgChanLen    uint32           //SendBuffMsg发送消息的缓冲最大长度
 	UserPack         dokiIF.IDataPack //用户自定义封解包
+
+	Log BaseLog.Ilog
 }

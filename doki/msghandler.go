@@ -1,9 +1,9 @@
 package doki
 
 import (
-	"fmt"
 	"github.com/YanHeDoki/Doki/conf"
 	"github.com/YanHeDoki/Doki/dokiIF"
+	BaseLog "github.com/YanHeDoki/Doki/utils/log"
 	"strconv"
 )
 
@@ -25,7 +25,7 @@ func NewMsgHandle() *MsgHandle {
 func (m *MsgHandle) DoMsgHandler(request dokiIF.IRequest) {
 	router, ok := m.Apis[request.GetMsgId()]
 	if !ok {
-		fmt.Println("not find Router In Apis")
+		BaseLog.DefaultLog.DokiLog("warning", "not find Router In Apis")
 		return
 	}
 	request.BindRouter(router)
@@ -38,8 +38,6 @@ func (m *MsgHandle) AddRouter(msgId uint32, handler ...dokiIF.RouterHandler) {
 	if _, ok := m.Apis[msgId]; ok {
 		panic("repeated api , msgId = " + strconv.Itoa(int(msgId)))
 	}
-
-	//2 添加msg与api的绑定关系
 
 	//优化一次完成再存入map
 	r := NewRouter()

@@ -7,6 +7,7 @@ import (
 	"github.com/YanHeDoki/Doki/constants"
 	"github.com/YanHeDoki/Doki/dokiIF"
 	"github.com/YanHeDoki/Doki/pack"
+	BaseLog "github.com/YanHeDoki/Doki/utils/log"
 	"net"
 )
 
@@ -52,9 +53,10 @@ func DefaultServer() dokiIF.IServer {
 	conf.ConfigInit()
 	//打印logo
 	printLogo()
+	BaseLog.DefaultLog = BaseLog.NewLog("debug")
 	return &Server{ //报错不能返回这个类型
 		Name:       conf.GlobalConfObject.Name,
-		IPVersion:  "tcp4",
+		IPVersion:  "tcp",
 		IP:         conf.GlobalConfObject.Host,
 		Port:       conf.GlobalConfObject.TcpPort,
 		MsgHandler: NewMsgHandle(),
@@ -83,14 +85,18 @@ func NewServer(config *conf.Config) dokiIF.IServer {
 	} else {
 		s.packet = config.UserPack
 	}
+	if config.Log == nil {
+		BaseLog.DefaultLog = BaseLog.NewLog("debug")
+	} else {
+		BaseLog.DefaultLog = config.Log
+	}
 
 	return s
 }
 
 func (s *Server) Start() {
-
 	//日志，以后应该用日志来处理
-	fmt.Printf("[START] Server name: %s,listenner at IP: %s, Port %d is starting\n", s.Name, s.IP, s.Port)
+	BaseLog.DefaultLog.DokiLog("info", fmt.Sprintf("[START] Server: %s Listener at IP: %s  Port: %d starting", s.Name, s.IP, s.Port))
 	s.exitChan = make(chan struct{})
 	//开启工作线程池
 	s.MsgHandler.StartWorkerPool()
@@ -100,17 +106,17 @@ func (s *Server) Start() {
 		//获取一个Tcp的Addr地址
 		resolveIPAddr, err := net.ResolveTCPAddr(s.IPVersion, fmt.Sprintf("%s:%d", s.IP, s.Port))
 		if err != nil {
-			fmt.Println("Start ServerErr err:", err)
+			BaseLog.DefaultLog.DokiLog("error", "Start ServerErr err:%s", err)
 			panic(err)
 		}
 		//监听服务器的地址
 		listen, err := net.ListenTCP(s.IPVersion, resolveIPAddr)
 		if err != nil {
-			fmt.Println("ListenIPErr err:", err)
+			BaseLog.DefaultLog.DokiLog("error", "ListenIPErr err:%s", err)
 			panic(err)
 		}
 
-		fmt.Println("Start  Server success", s.Name, "success Listening...")
+		BaseLog.DefaultLog.DokiLog("info", "Start  %s success Listening...", s.Name)
 		var cid uint32
 		cid = 0
 
@@ -122,16 +128,21 @@ func (s *Server) Start() {
 				if err != nil {
 					//Go 1.16+ 判断是否是net.ErrClosed 既监听链接已经关闭
 					if errors.Is(err, net.ErrClosed) {
-						fmt.Println("Listener closed")
+						BaseLog.DefaultLog.DokiLog("error", "Listener closed")
 						return
 					}
-					fmt.Println("AcceptTCP err:", err)
+					BaseLog.DefaultLog.DokiLog("error", "AcceptTCP err:%s", err)
 					continue
 				}
 				//设置最大连接数量的判断，如果超过最大连接数就断开
 				if s.ConnMgr.Len() >= conf.GlobalConfObject.MaxConn {
 					//todo 给客户端一个错误信息
-					fmt.Println("Too Many Connections MaxConn=", conf.GlobalConfObject.MaxConn)
+					bytes, err := s.packet.Pack(pack.NewMsgPackage(0, []byte("Server Conn is Max....")))
+					if err != nil {
+						BaseLog.DefaultLog.DokiLog("error", "Server MaxConn send msg err:%s", err)
+					}
+					conn.Write(bytes)
+					BaseLog.DefaultLog.DokiLog("warning", "Too Many Connections MaxConn=%d", conf.GlobalConfObject.MaxConn)
 					conn.Close()
 					continue
 				}
@@ -147,7 +158,7 @@ func (s *Server) Start() {
 		case <-s.exitChan:
 			err := listen.Close()
 			if err != nil {
-				fmt.Println("Listener close err ", err)
+				BaseLog.DefaultLog.DokiLog("error", "Listener close err:%s ", err)
 			}
 		}
 
@@ -156,7 +167,7 @@ func (s *Server) Start() {
 }
 
 func (s *Server) Stop() {
-	fmt.Println("[STOP]  server , name ", s.Name)
+	BaseLog.DefaultLog.DokiLog("info", "[STOP]  server , name:%s", s.Name)
 	//断开服务器，将一些服务器的资源链接释放
 	s.ConnMgr.ClearConn()
 	s.exitChan <- struct{}{}

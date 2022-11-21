@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/YanHeDoki/Doki/conf"
 	"github.com/YanHeDoki/Doki/dokiIF"
+	BaseLog "github.com/YanHeDoki/Doki/utils/log"
 	"sync"
 )
 
@@ -27,7 +28,7 @@ func (c *ConnManager) Add(connection dokiIF.IConnection) {
 	c.connLock.Lock()
 	defer c.connLock.Unlock()
 	c.connections[connection.GetConnID()] = connection
-	fmt.Println("ADD conn to manager success")
+	BaseLog.DefaultLog.DokiLog("debug", "ADD conn to manager success")
 }
 
 func (c *ConnManager) Remove(connection dokiIF.IConnection) {
@@ -35,7 +36,7 @@ func (c *ConnManager) Remove(connection dokiIF.IConnection) {
 	c.connLock.Lock()
 	delete(c.connections, connection.GetConnID())
 	c.connLock.Unlock()
-	fmt.Println("Remove conn to manager success")
+	BaseLog.DefaultLog.DokiLog("debug", "Remove conn to manager success")
 }
 
 func (c *ConnManager) Get(connId uint32) (dokiIF.IConnection, error) {
@@ -65,7 +66,7 @@ func (c *ConnManager) ClearConn() {
 		//不必要的删除 连接自己的stop里已经调用删除
 		//delete(c.connections, connId)
 	}
-	fmt.Println("clear ConnManagerMap success")
+	BaseLog.DefaultLog.DokiLog("info", "clear ConnManagerMap success")
 }
 
 //ClearOneConn  利用ConnID获取一个链接 并且删除
@@ -82,7 +83,6 @@ func (c *ConnManager) ClearOneConn(connID uint32) {
 		fmt.Println("Clear Connections ID:  ", connID, "succeed")
 		return
 	}
-
-	fmt.Println("Clear Connections ID:  ", connID, "err")
+	BaseLog.DefaultLog.DokiLog("info", "Clear Connections ID:%d ", connID)
 	return
 }

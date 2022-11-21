@@ -7,6 +7,7 @@ import (
 	"github.com/YanHeDoki/Doki/conf"
 	"github.com/YanHeDoki/Doki/dokiIF"
 	"github.com/YanHeDoki/Doki/pack"
+	BaseLog "github.com/YanHeDoki/Doki/utils/log"
 	"net"
 	"sync"
 	"time"
@@ -53,7 +54,7 @@ func NewConnection(server dokiIF.IServer, conn *net.TCPConn, ConnID uint32) *Con
 
 func (c *Connection) StartReader() {
 
-	fmt.Println("Reader Server start ....")
+	BaseLog.DefaultLog.DokiLog("debug", "Reader Server start ....")
 	defer c.Stop()
 
 	for {
@@ -65,7 +66,7 @@ func (c *Connection) StartReader() {
 
 			message, err := c.TcpServer.GetPacket().UnPack(c.Conn)
 			if err != nil {
-				fmt.Println("UnPack err:", err)
+				BaseLog.DefaultLog.DokiLog("error", "UnPack err:%s", err)
 				return
 			}
 
@@ -91,8 +92,8 @@ func (c *Connection) StartReader() {
 	写消息Goroutine， 用户将数据发送给客户端
 */
 func (c *Connection) StartWrite() {
-	fmt.Println("[Writer Goroutine is running]")
-	defer fmt.Println(c.RemoteAddr().String(), "[conn Writer exit!]")
+	BaseLog.DefaultLog.DokiLog("debug", "[Writer Goroutine is running]")
+	defer BaseLog.DefaultLog.DokiLog("debug", fmt.Sprint(c.RemoteAddr().String(), "[conn Writer exit!]"))
 
 	for {
 		select {
@@ -101,11 +102,11 @@ func (c *Connection) StartWrite() {
 			if ok {
 				//有数据要写给客户端
 				if _, err := c.Conn.Write(data); err != nil {
-					fmt.Println("Send Buff Data error:, ", err, " Conn Writer exit")
+					BaseLog.DefaultLog.DokiLog("error", "Send Buff Data error:%s", err, "Conn Writer exit")
 					return
 				}
 			} else {
-				fmt.Println("MsgBuffChan is Closed")
+				BaseLog.DefaultLog.DokiLog("warning", "MsgBuffChan is Closed")
 				break
 			}
 		//用于退出
@@ -118,7 +119,7 @@ func (c *Connection) StartWrite() {
 
 //启动连接
 func (c *Connection) Start() {
-	fmt.Println("conn starting...ConnID=", c.ConnID)
+	BaseLog.DefaultLog.DokiLog("debug", "conn starting...ConnID=%d", c.ConnID)
 	c.ctx, c.cancel = context.WithCancel(context.Background())
 	//调用开发者设置的启动前的钩子函数
 	c.TcpServer.CallOnConnStart(c)
@@ -157,16 +158,16 @@ func (c *Connection) RemoteAddr() net.Addr {
 }
 
 //SendMsg 直接将Message数据发送数据给远程的TCP客户端
-func (c *Connection) SendMsg(msgID uint32, data []byte) error {
+func (c *Connection) SendMsg(msgId uint32, data []byte) error {
 	c.RLock()
 	defer c.RUnlock()
 	if c.IsClosed == true {
 		return errors.New("connection closed when send msg")
 	}
 
-	msg, err := c.TcpServer.GetPacket().Pack(pack.NewMsgPackage(msgID, data))
+	msg, err := c.TcpServer.GetPacket().Pack(pack.NewMsgPackage(msgId, data))
 	if err != nil {
-		fmt.Println("Pack error msg ID = ", msgID)
+		BaseLog.DefaultLog.DokiLog("error", "Pack error msg ID =%d ", msgId)
 		return errors.New("Pack error msg ")
 	}
 
@@ -189,7 +190,7 @@ func (c *Connection) SendBuffMsg(msgId uint32, data []byte) error {
 	//将data封包，并且发送
 	msg, err := c.TcpServer.GetPacket().Pack(pack.NewMsgPackage(msgId, data))
 	if err != nil {
-		fmt.Println("Pack error msg id = ", msgId)
+		BaseLog.DefaultLog.DokiLog("error", "Pack error msg ID =%d ", msgId)
 		return errors.New("Pack error msg ")
 	}
 
