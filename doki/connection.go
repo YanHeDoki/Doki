@@ -92,7 +92,7 @@ func (c *Connection) StartReader() {
 	写消息Goroutine， 用户将数据发送给客户端
 */
 func (c *Connection) StartWrite() {
-	BaseLog.DefaultLog.DokiLog("debug", "[Writer Goroutine is running]")
+	BaseLog.DefaultLog.DokiLog("debug", "Writer Goroutine is running")
 	defer BaseLog.DefaultLog.DokiLog("debug", fmt.Sprint(c.RemoteAddr().String(), "conn Writer exit!"))
 
 	for {
