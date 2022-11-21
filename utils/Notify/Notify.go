@@ -2,6 +2,7 @@ package Notify
 
 import (
 	"errors"
+	"fmt"
 	"github.com/YanHeDoki/Doki/dokiIF"
 	BaseLog "github.com/YanHeDoki/Doki/utils/log"
 	"sync"
@@ -47,7 +48,7 @@ func (n *notify) NotifyToConnByID(Id uint64, MsgId uint32, data []byte) error {
 	}
 	err := Conn.SendMsg(MsgId, data)
 	if err != nil {
-		BaseLog.DefaultLog.DokiLog("error", "Notify to %d err:%s", Id, err)
+		BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Notify to %d err:%s", Id, err))
 		return err
 	}
 	return nil
@@ -57,7 +58,7 @@ func (n *notify) NotifyAll(MsgId uint32, data []byte) error {
 	for Id, v := range n.cimap {
 		err := v.SendMsg(MsgId, data)
 		if err != nil {
-			BaseLog.DefaultLog.DokiLog("error", "Notify to %d err:%s", Id, err)
+			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Notify to %d err:%s", Id, err))
 			return err
 		}
 	}
@@ -71,7 +72,7 @@ func (n *notify) NotifyBuffToConnByID(Id uint64, MsgId uint32, data []byte) erro
 	}
 	err := Conn.SendBuffMsg(MsgId, data)
 	if err != nil {
-		BaseLog.DefaultLog.DokiLog("error", "Notify to %d err:%s", Id, err)
+		BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Notify to %d err:%s", Id, err))
 		return err
 	}
 	return nil
@@ -81,7 +82,7 @@ func (n *notify) NotifyBuffAll(MsgId uint32, data []byte) error {
 	for Id, v := range n.cimap {
 		err := v.SendBuffMsg(MsgId, data)
 		if err != nil {
-			BaseLog.DefaultLog.DokiLog("error", "Notify to %d err:%s", Id, err)
+			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Notify to %d err:%s", Id, err))
 			return err
 		}
 	}

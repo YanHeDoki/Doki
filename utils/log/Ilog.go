@@ -1,5 +1,5 @@
 package BaseLog
 
 type Ilog interface {
-	DokiLog(LogLv, format string, arg ...interface{})
+	DokiLog(LogLv, LogStr string)
 }

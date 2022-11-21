@@ -83,6 +83,6 @@ func (c *ConnManager) ClearOneConn(connID uint32) {
 		fmt.Println("Clear Connections ID:  ", connID, "succeed")
 		return
 	}
-	BaseLog.DefaultLog.DokiLog("info", "Clear Connections ID:%d ", connID)
+	BaseLog.DefaultLog.DokiLog("info", fmt.Sprintf("Clear Connections ID:%d ", connID))
 	return
 }

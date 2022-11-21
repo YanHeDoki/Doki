@@ -106,17 +106,17 @@ func (s *Server) Start() {
 		//获取一个Tcp的Addr地址
 		resolveIPAddr, err := net.ResolveTCPAddr(s.IPVersion, fmt.Sprintf("%s:%d", s.IP, s.Port))
 		if err != nil {
-			BaseLog.DefaultLog.DokiLog("error", "Start ServerErr err:%s", err)
+			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Start ServerErr err:%s", err))
 			panic(err)
 		}
 		//监听服务器的地址
 		listen, err := net.ListenTCP(s.IPVersion, resolveIPAddr)
 		if err != nil {
-			BaseLog.DefaultLog.DokiLog("error", "ListenIPErr err:%s", err)
+			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("ListenIPErr err:%s", err))
 			panic(err)
 		}
 
-		BaseLog.DefaultLog.DokiLog("info", "Start  %s success Listening...", s.Name)
+		BaseLog.DefaultLog.DokiLog("info", fmt.Sprintf("Start  %s success Listening...", s.Name))
 		var cid uint32
 		cid = 0
 
@@ -131,7 +131,7 @@ func (s *Server) Start() {
 						BaseLog.DefaultLog.DokiLog("error", "Listener closed")
 						return
 					}
-					BaseLog.DefaultLog.DokiLog("error", "AcceptTCP err:%s", err)
+					BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("AcceptTCP err:%s", err))
 					continue
 				}
 				//设置最大连接数量的判断，如果超过最大连接数就断开
@@ -139,10 +139,10 @@ func (s *Server) Start() {
 					//todo 给客户端一个错误信息
 					bytes, err := s.packet.Pack(pack.NewMsgPackage(0, []byte("Server Conn is Max....")))
 					if err != nil {
-						BaseLog.DefaultLog.DokiLog("error", "Server MaxConn send msg err:%s", err)
+						BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Server MaxConn send msg err:%s", err))
 					}
 					conn.Write(bytes)
-					BaseLog.DefaultLog.DokiLog("warning", "Too Many Connections MaxConn=%d", conf.GlobalConfObject.MaxConn)
+					BaseLog.DefaultLog.DokiLog("warning", fmt.Sprintf("Too Many Connections MaxConn=%d", conf.GlobalConfObject.MaxConn))
 					conn.Close()
 					continue
 				}
@@ -158,7 +158,7 @@ func (s *Server) Start() {
 		case <-s.exitChan:
 			err := listen.Close()
 			if err != nil {
-				BaseLog.DefaultLog.DokiLog("error", "Listener close err:%s ", err)
+				BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Listener close err:%s ", err))
 			}
 		}
 
@@ -167,7 +167,7 @@ func (s *Server) Start() {
 }
 
 func (s *Server) Stop() {
-	BaseLog.DefaultLog.DokiLog("info", "[STOP]  server , name:%s", s.Name)
+	BaseLog.DefaultLog.DokiLog("info", fmt.Sprintf("[STOP]  server , name:%s", s.Name))
 	//断开服务器，将一些服务器的资源链接释放
 	s.ConnMgr.ClearConn()
 	s.exitChan <- struct{}{}

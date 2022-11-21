@@ -27,16 +27,16 @@ type Logger struct {
 	LogLevel Level
 }
 
-func (l *Logger) DokiLog(LogLv, format string, arg ...any) {
+func (l *Logger) DokiLog(LogLv, LogStr string) {
 	switch LogLv {
 	case "debug":
-		l.Debug(format, arg)
+		l.Debug(LogStr)
 	case "info":
-		l.Info(format, arg)
+		l.Info(LogStr)
 	case "warning":
-		l.Warning(format, arg)
+		l.Warning(LogStr)
 	case "error":
-		l.Error(format, arg)
+		l.Error(LogStr)
 	}
 }
 
@@ -97,40 +97,36 @@ func (l *Logger) enable(level Level) bool {
 }
 
 //日志打印方法
-func (l *Logger) log(lv Level, format string, arg ...any) {
+func (l *Logger) log(lv Level, logStr string) {
 	if l.enable(lv) {
-		msg := fmt.Sprintf(format, arg...)
-		if strings.HasSuffix(msg, "%!(EXTRA []interface {}=[])") {
-			msg = strings.TrimSuffix(msg, "%!(EXTRA []interface {}=[])")
-		}
 		t := time.Now()
 		_, filename, lineNo := getInfo(4)
-		fmt.Printf("[%s] [%s][%s:%d] %s \n", t.Format("2006-01-02 15:04:05"), paserLogString(lv), filename, lineNo, msg)
+		fmt.Printf("[%s] [%s][%s:%d] %s \n", t.Format("2006-01-02 15:04:05"), paserLogString(lv), filename, lineNo, logStr)
 	}
 }
 
 //日志等级调用打印方法
-func (l *Logger) Debug(format string, arg ...interface{}) {
+func (l *Logger) Debug(logStr string) {
 	if l.enable(DEBUG) {
-		l.log(DEBUG, format, arg...)
+		l.log(DEBUG, logStr)
 	}
 }
 
-func (l *Logger) Info(format string, arg ...interface{}) {
+func (l *Logger) Info(logStr string) {
 
-	l.log(INFO, format, arg...)
-
-}
-
-func (l *Logger) Warning(format string, arg ...interface{}) {
-
-	l.log(WARNING, format, arg...)
+	l.log(INFO, logStr)
 
 }
 
-func (l *Logger) Error(format string, arg ...interface{}) {
+func (l *Logger) Warning(logStr string) {
 
-	l.log(ERROR, format, arg...)
+	l.log(WARNING, logStr)
+
+}
+
+func (l *Logger) Error(logStr string) {
+
+	l.log(ERROR, logStr)
 
 }
 

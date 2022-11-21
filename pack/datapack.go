@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"github.com/YanHeDoki/Doki/conf"
 	"github.com/YanHeDoki/Doki/dokiIF"
 	BaseLog "github.com/YanHeDoki/Doki/utils/log"
@@ -52,7 +53,7 @@ func (d *DataPack) UnPack(conn io.Reader) (dokiIF.IMessage, error) {
 	headBuff := make([]byte, d.GetHeadLen())
 	_, err := io.ReadFull(conn, headBuff)
 	if err != nil {
-		BaseLog.DefaultLog.DokiLog("error", "read in packhead err:%s", err.Error())
+		BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("read in packhead err:%s", err.Error()))
 		return nil, err
 	}
 
@@ -81,7 +82,7 @@ func (d *DataPack) UnPack(conn io.Reader) (dokiIF.IMessage, error) {
 	if msg.GetDataLen() > 0 {
 		data = make([]byte, msg.GetDataLen())
 		if _, err := io.ReadFull(conn, data); err != nil {
-			BaseLog.DefaultLog.DokiLog("error", "read data err:%s", err.Error())
+			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("read data err:%s", err.Error()))
 			return nil, err
 		}
 	}

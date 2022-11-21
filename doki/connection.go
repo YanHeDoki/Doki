@@ -66,7 +66,7 @@ func (c *Connection) StartReader() {
 
 			message, err := c.TcpServer.GetPacket().UnPack(c.Conn)
 			if err != nil {
-				BaseLog.DefaultLog.DokiLog("error", "UnPack err:%s", err)
+				BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("UnPack err:%s", err))
 				return
 			}
 
@@ -93,7 +93,7 @@ func (c *Connection) StartReader() {
 */
 func (c *Connection) StartWrite() {
 	BaseLog.DefaultLog.DokiLog("debug", "[Writer Goroutine is running]")
-	defer BaseLog.DefaultLog.DokiLog("debug", fmt.Sprint(c.RemoteAddr().String(), "[conn Writer exit!]"))
+	defer BaseLog.DefaultLog.DokiLog("debug", fmt.Sprint(c.RemoteAddr().String(), "conn Writer exit!"))
 
 	for {
 		select {
@@ -102,7 +102,7 @@ func (c *Connection) StartWrite() {
 			if ok {
 				//有数据要写给客户端
 				if _, err := c.Conn.Write(data); err != nil {
-					BaseLog.DefaultLog.DokiLog("error", "Send Buff Data error:%s", err, "Conn Writer exit")
+					BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Send Buff Data error:%s Conn Writer exit", err))
 					return
 				}
 			} else {
@@ -119,7 +119,7 @@ func (c *Connection) StartWrite() {
 
 //启动连接
 func (c *Connection) Start() {
-	BaseLog.DefaultLog.DokiLog("debug", "conn starting...ConnID=%d", c.ConnID)
+	BaseLog.DefaultLog.DokiLog("debug", fmt.Sprintf("conn starting...ConnID=%d", c.ConnID))
 	c.ctx, c.cancel = context.WithCancel(context.Background())
 	//调用开发者设置的启动前的钩子函数
 	c.TcpServer.CallOnConnStart(c)
@@ -167,7 +167,7 @@ func (c *Connection) SendMsg(msgId uint32, data []byte) error {
 
 	msg, err := c.TcpServer.GetPacket().Pack(pack.NewMsgPackage(msgId, data))
 	if err != nil {
-		BaseLog.DefaultLog.DokiLog("error", "Pack error msg ID =%d ", msgId)
+		BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Pack error msg ID =%d ", msgId))
 		return errors.New("Pack error msg ")
 	}
 
@@ -190,7 +190,7 @@ func (c *Connection) SendBuffMsg(msgId uint32, data []byte) error {
 	//将data封包，并且发送
 	msg, err := c.TcpServer.GetPacket().Pack(pack.NewMsgPackage(msgId, data))
 	if err != nil {
-		BaseLog.DefaultLog.DokiLog("error", "Pack error msg ID =%d ", msgId)
+		BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Pack error msg ID =%d ", msgId))
 		return errors.New("Pack error msg ")
 	}
 
