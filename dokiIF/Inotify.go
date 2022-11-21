@@ -1,6 +1,7 @@
 package dokiIF
 
 type Inotify interface {
+	HasIdConn(id uint64) bool
 	//通知某个id的方法
 	NotifyToConnByID(Id uint64, MsgId uint32, data []byte) error
 	//通知所有人
