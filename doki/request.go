@@ -9,6 +9,8 @@ import (
 type Request struct {
 	//已经和客户端建立好的链接
 	conn dokiIF.IConnection
+	//Udp连接
+	udpConn *net.UDPConn
 	//客户端请求的数据
 	msg dokiIF.IMessage
 	//组合路由接口
@@ -16,11 +18,18 @@ type Request struct {
 }
 
 func (r *Request) GetUdpConn() *net.UDPConn {
-	BaseLog.DefaultLog.DokiLog("warning", "Udp TcpRequest Is Not have UDPConn")
-	return nil
+	if r.udpConn == nil {
+		BaseLog.DefaultLog.DokiLog("warning", "TcpRequest Is Not have UDPConn")
+		return nil
+	}
+	return r.udpConn
 }
 
 func (r *Request) GetConnection() dokiIF.IConnection {
+	if r.conn == nil {
+		BaseLog.DefaultLog.DokiLog("warning", "UdpRequest Is Not have TcpConn")
+		return nil
+	}
 	return r.conn
 }
 
@@ -46,44 +55,4 @@ func (r *Request) Abort() {
 
 func (r *Request) IsAbort() bool {
 	return r.Router.IsAbort()
-}
-
-type UdpRequest struct {
-	id      uint32
-	data    []byte
-	udpConn *net.UDPConn
-	Router  dokiIF.IRouter
-}
-
-func (u *UdpRequest) GetUdpConn() *net.UDPConn {
-	return u.udpConn
-}
-
-func (u *UdpRequest) GetConnection() dokiIF.IConnection {
-	BaseLog.DefaultLog.DokiLog("warning", "Udp UdpRequest Is Not have Connection")
-	return nil
-}
-
-func (u *UdpRequest) BindRouter(router dokiIF.IRouter) {
-	u.Router = router
-}
-
-func (u *UdpRequest) Next() {
-	u.Router.Next(u)
-}
-
-func (u *UdpRequest) Abort() {
-	u.Router.Abort()
-}
-
-func (u *UdpRequest) IsAbort() bool {
-	return u.Router.IsAbort()
-}
-
-func (u *UdpRequest) GetData() []byte {
-	return u.data
-}
-
-func (u *UdpRequest) GetMsgId() uint32 {
-	return u.id
 }

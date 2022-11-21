@@ -10,7 +10,7 @@ import (
 
 type notify struct {
 	cimap ConnIDMap
-	look  sync.RWMutex
+	sync.RWMutex
 }
 
 func NewNotify() *notify {
@@ -20,21 +20,21 @@ func NewNotify() *notify {
 }
 
 func (n *notify) HasIdConn(Id uint64) bool {
-	n.look.Lock()
-	defer n.look.Unlock()
+	n.Lock()
+	defer n.Unlock()
 	_, ok := n.cimap[Id]
 	return ok
 }
 
 func (n *notify) SetNotifyID(Id uint64, conn dokiIF.IConnection) {
-	n.look.Lock()
-	defer n.look.Unlock()
+	n.Lock()
+	defer n.Unlock()
 	n.cimap[Id] = conn
 }
 
 func (n *notify) GetNotifyByID(Id uint64) (dokiIF.IConnection, error) {
-	n.look.RLock()
-	defer n.look.RUnlock()
+	n.RLock()
+	defer n.RUnlock()
 	Conn, ok := n.cimap[Id]
 	if !ok {
 		return nil, errors.New(" Not Find UserId")
@@ -43,8 +43,8 @@ func (n *notify) GetNotifyByID(Id uint64) (dokiIF.IConnection, error) {
 }
 
 func (n *notify) DelNotifyByID(Id uint64) {
-	n.look.RLock()
-	defer n.look.RUnlock()
+	n.RLock()
+	defer n.RUnlock()
 	delete(n.cimap, Id)
 }
 

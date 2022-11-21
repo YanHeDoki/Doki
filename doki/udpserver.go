@@ -3,6 +3,7 @@ package doki
 import (
 	"fmt"
 	"github.com/YanHeDoki/Doki/dokiIF"
+	"github.com/YanHeDoki/Doki/pack"
 	BaseLog "github.com/YanHeDoki/Doki/utils/log"
 	"net"
 )
@@ -35,7 +36,7 @@ func NewUdpServer(IP string, Prot int, pack dokiIF.IUdpDataPack) dokiIF.IUdpServ
 
 func (u *UdpServer) Start() {
 	//日志，以后应该用日志来处理
-	BaseLog.DefaultLog.DokiLog("info", fmt.Sprintf("[START] Server: %s Listener at IP: %s  Port: %d starting", u.IP, u.Port))
+	BaseLog.DefaultLog.DokiLog("info", fmt.Sprintf("[START] UdpServer Listener at IP: %s  Port: %d starting", u.IP, u.Port))
 	u.exitChan = make(chan struct{})
 
 	go func() {
@@ -69,9 +70,8 @@ func (u *UdpServer) Start() {
 					BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("UnPack err:%s", err))
 					continue
 				}
-				go u.MsgHandler.DoMsgHandler(&UdpRequest{
-					id:      id,
-					data:    data,
+				go u.MsgHandler.DoMsgHandler(&Request{
+					msg:     pack.NewMsgPackage(id, data),
 					udpConn: listen,
 				})
 			}
