@@ -249,7 +249,9 @@ func (c *Connection) finalizer() {
 	//将当前链接从connmgr中销毁
 	c.TcpServer.GetConnMgr().Remove(c)
 	//关闭通道
-	close(c.MsgBuffChan)
+	if c.MsgBuffChan != nil {
+		close(c.MsgBuffChan)
+	}
 	//标志设置
 	c.IsClosed = true
 
