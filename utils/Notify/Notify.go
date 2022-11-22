@@ -20,8 +20,8 @@ func NewNotify() *notify {
 }
 
 func (n *notify) HasIdConn(Id uint64) bool {
-	n.Lock()
-	defer n.Unlock()
+	n.RLock()
+	defer n.RUnlock()
 	_, ok := n.cimap[Id]
 	return ok
 }
@@ -49,11 +49,11 @@ func (n *notify) DelNotifyByID(Id uint64) {
 }
 
 func (n *notify) NotifyToConnByID(Id uint64, MsgId uint32, data []byte) error {
-	Conn, ok := n.cimap[Id]
-	if !ok {
-		return errors.New(" Not Find UserId")
+	Conn, err := n.GetNotifyByID(Id)
+	if err != nil {
+		return err
 	}
-	err := Conn.SendMsg(MsgId, data)
+	err = Conn.SendMsg(MsgId, data)
 	if err != nil {
 		BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Notify to %d err:%s", Id, err))
 		return err
@@ -62,6 +62,8 @@ func (n *notify) NotifyToConnByID(Id uint64, MsgId uint32, data []byte) error {
 }
 
 func (n *notify) NotifyAll(MsgId uint32, data []byte) error {
+	n.RLock()
+	defer n.RUnlock()
 	for Id, v := range n.cimap {
 		err := v.SendMsg(MsgId, data)
 		if err != nil {
@@ -73,11 +75,11 @@ func (n *notify) NotifyAll(MsgId uint32, data []byte) error {
 }
 
 func (n *notify) NotifyBuffToConnByID(Id uint64, MsgId uint32, data []byte) error {
-	Conn, ok := n.cimap[Id]
-	if !ok {
-		return errors.New(" Not Find UserId")
+	Conn, err := n.GetNotifyByID(Id)
+	if err != nil {
+		return err
 	}
-	err := Conn.SendBuffMsg(MsgId, data)
+	err = Conn.SendBuffMsg(MsgId, data)
 	if err != nil {
 		BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Notify to %d err:%s", Id, err))
 		return err
@@ -86,6 +88,8 @@ func (n *notify) NotifyBuffToConnByID(Id uint64, MsgId uint32, data []byte) erro
 }
 
 func (n *notify) NotifyBuffAll(MsgId uint32, data []byte) error {
+	n.RLock()
+	defer n.RUnlock()
 	for Id, v := range n.cimap {
 		err := v.SendBuffMsg(MsgId, data)
 		if err != nil {

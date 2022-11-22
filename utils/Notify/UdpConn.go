@@ -52,14 +52,22 @@ func (un *UdpNotify) DelAddrById(Id uint64) {
 	delete(un.UCM, Id)
 }
 
+func (un *UdpNotify) SendUdp(Id uint64, data []byte) error {
+	un.RLock()
+	defer un.RUnlock()
+	_, err := un.udpServer.GetUdpConn().WriteToUDP(data, un.UCM[Id])
+	return err
+}
+
 func (un *UdpNotify) SendUdpTo(Id uint64, MsgId uint32, data []byte) error {
-	un.Lock()
-	defer un.Unlock()
+	un.RLock()
+	addr := un.UCM[Id]
+	un.RUnlock()
 	resp, err := un.udpServer.GetPacket().Pack(pack.NewMsgPackage(MsgId, data))
 	if err != nil {
 		return err
 	}
-	_, err = un.udpServer.GetUdpConn().WriteToUDP(resp, un.UCM[Id])
+	_, err = un.udpServer.GetUdpConn().WriteToUDP(resp, addr)
 	if err != nil {
 		return err
 	}
@@ -67,16 +75,13 @@ func (un *UdpNotify) SendUdpTo(Id uint64, MsgId uint32, data []byte) error {
 }
 
 func (un *UdpNotify) Broadcast(Ids []uint64, MsgId uint32, data []byte) error {
-	un.Lock()
-	defer un.Unlock()
 
 	resp, err := un.udpServer.GetPacket().Pack(pack.NewMsgPackage(MsgId, data))
 	if err != nil {
 		return err
 	}
-
 	for _, v := range Ids {
-		_, err := un.udpServer.GetUdpConn().WriteToUDP(resp, un.UCM[v])
+		err := un.SendUdp(v, resp)
 		if err != nil {
 			return err
 		}

@@ -45,7 +45,7 @@ func NewConnection(server dokiIF.IServer, conn *net.TCPConn, ConnID uint32) *Con
 		Conn:        conn,
 		ConnID:      ConnID,
 		IsClosed:    false,
-		MsgBuffChan: make(chan []byte, conf.GlobalConfObject.MaxMsgChanLen), //不要忘记初始化
+		MsgBuffChan: nil, //不要忘记初始化
 		property:    nil,
 	}
 	c.TcpServer.GetConnMgr().Add(c)
@@ -125,8 +125,6 @@ func (c *Connection) Start() {
 
 	//启动当前链接的读数据业务
 	go c.StartReader()
-	// 启动当前链接的读数据业务
-	go c.StartWrite()
 
 	//阻塞
 	select {
@@ -179,7 +177,13 @@ func (c *Connection) SendMsg(msgId uint32, data []byte) error {
 func (c *Connection) SendBuffMsg(msgId uint32, data []byte) error {
 	c.RLock()
 	defer c.RUnlock()
-	//超市时间
+	if c.MsgBuffChan == nil {
+		c.MsgBuffChan = make(chan []byte, conf.GlobalConfObject.MaxMsgChanLen)
+		// 启动当前链接的读数据业务 目前StartWrite里只会读取MsgBuffChan 里的数据 所以使用缓冲发送再开启
+		go c.StartWrite()
+	}
+
+	//超时时间
 	timeOut := time.NewTimer(10 * time.Millisecond)
 	defer timeOut.Stop()
 
