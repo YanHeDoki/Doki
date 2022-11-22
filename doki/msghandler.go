@@ -5,32 +5,35 @@ import (
 	"github.com/YanHeDoki/Doki/dokiIF"
 	BaseLog "github.com/YanHeDoki/Doki/utils/log"
 	"strconv"
+	"sync"
 )
 
 type MsgHandle struct {
 	Apis           map[uint32]*Router     //路由模块
 	WorkerPoolSize uint32                 //业务工作Worker池的数量
 	TaskQueue      []chan dokiIF.IRequest //Worker负责取任务的消息队列
+	sync.RWMutex
 }
 
 func NewMsgHandle() *MsgHandle {
 	return &MsgHandle{
-		Apis:           make(map[uint32]*Router),
-		WorkerPoolSize: conf.GlobalConfObject.WorkerPoolSize,
-		TaskQueue:      make([]chan dokiIF.IRequest, conf.GlobalConfObject.WorkerPoolSize), //注意一个消息队列对应一个worker池子
+		Apis:           make(map[uint32]*Router, 15),
+		WorkerPoolSize: conf.GlobalConfObject.WorkerPoolSize, //注意一个消息队列对应一个worker池子
 	}
 }
 
 //尝试修改msghandler
 func (m *MsgHandle) DoMsgHandler(request dokiIF.IRequest) {
+	m.RLock()
 	router, ok := m.Apis[request.GetMsgId()]
+	m.RUnlock()
 	if !ok {
 		BaseLog.DefaultLog.DokiLog("warning", "not find Router In Apis")
 		return
 	}
 	request.BindRouter(router)
 	router.Reindx()
-	router.Next(request)
+	go router.Next(request)
 }
 
 func (m *MsgHandle) AddRouter(msgId uint32, handler ...dokiIF.RouterHandler) {
@@ -46,6 +49,12 @@ func (m *MsgHandle) AddRouter(msgId uint32, handler ...dokiIF.RouterHandler) {
 }
 
 func (m *MsgHandle) StartWorkerPool() {
+
+	if m.TaskQueue == nil {
+		//优化内存占用是tcp会主动调用这个方法的时候才分配内存udp服务不开启队列消息所以不需要开辟内存
+		//只有开启的时候才分配内存
+		m.TaskQueue = make([]chan dokiIF.IRequest, conf.GlobalConfObject.WorkerPoolSize)
+	}
 
 	//根据配置的workerpool的size来分别开启worker 每个worker用一个go承载
 	for i := uint32(0); i < m.WorkerPoolSize; i++ {
@@ -75,8 +84,6 @@ func (m *MsgHandle) SendMsgToTaskQueue(request dokiIF.IRequest) {
 	//将消息平均的分配给woroker
 	//根据客户端建立的连接id来判断
 	workerId := request.GetConnection().GetConnID() % m.WorkerPoolSize
-	//fmt.Println("add connIP=", req.GetConnection().GetConnID(), "req msgid=", req.GetMsgId(),
-	//	"to worker", workerId)
 	//将消息发送给消息队列
 	m.TaskQueue[workerId] <- request
 }

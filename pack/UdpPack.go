@@ -3,39 +3,51 @@ package pack
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
+	"github.com/YanHeDoki/Doki/dokiIF"
 	BaseLog "github.com/YanHeDoki/Doki/utils/log"
+	"io"
 	"net"
 )
 
 type UdpPack struct {
 }
 
-//Pack 封包方法(压缩数据)
-func (d *UdpPack) Pack(id uint32, data []byte) ([]byte, error) {
+func (d *UdpPack) GetHeadLen() uint32 {
+	return 0
+}
+
+func (d *UdpPack) Pack(msg dokiIF.IMessage) ([]byte, error) {
 	BaseLog.DefaultLog.DokiLog("warning", "please implement UdpPack Not Use This Func")
 	//创建一个存放bytes字节的缓冲
 	dataBuff := bytes.NewBuffer([]byte{})
 	//将data id 封装进去
-	if err := binary.Write(dataBuff, binary.LittleEndian, id); err != nil {
+	if err := binary.Write(dataBuff, binary.LittleEndian, msg.GetMsgId()); err != nil {
 		return nil, err
 	}
 	//将data 消息本体封装进去
-	if err := binary.Write(dataBuff, binary.LittleEndian, data); err != nil {
+	if err := binary.Write(dataBuff, binary.LittleEndian, msg.GetData()); err != nil {
 		return nil, err
 	}
 
 	return dataBuff.Bytes(), nil
 }
 
-//UnPack 拆包方法 （将包的head信息读取）之后再根据head里的len信息读取信息
-func (d *UdpPack) UnPack(data []byte, addr *net.UDPAddr) (uint32, []byte, error) {
-
+func (d *UdpPack) UnPack(conn io.Reader) (dokiIF.IMessage, error) {
 	BaseLog.DefaultLog.DokiLog("warning", "please implement UdpPack Not Use This Func")
+
+	ReadUdp := make([]byte, 4096)
+	udpconn := conn.(*net.UDPConn)
+	n, _, err := udpconn.ReadFromUDP(ReadUdp)
+	if err != nil {
+		BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("ReadFromUDP err:%s", err))
+		return nil, err
+	}
 	//创建一个存放bytes字节的缓冲
 	dataBuff := bytes.NewBuffer([]byte{})
-	err := binary.Read(dataBuff, binary.LittleEndian, data)
+	err = binary.Read(dataBuff, binary.LittleEndian, ReadUdp[:n])
 	if err != nil {
-		return 0, nil, err
+		return nil, err
 	}
-	return 0, dataBuff.Bytes(), nil
+	return NewMsgPackage(0, dataBuff.Bytes()), nil
 }

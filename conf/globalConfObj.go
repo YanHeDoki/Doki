@@ -6,6 +6,7 @@ import (
 	"github.com/YanHeDoki/Doki/dokiIF"
 	"io/ioutil"
 	"os"
+	"runtime"
 )
 
 //存储全局参数 供其他模块使用
@@ -67,13 +68,14 @@ func (g *GlobalObj) Reload() {
 
 //提供一个Init方法初始化当前的全局对象
 func ConfigInit() {
+	WorkerPoolSize := runtime.NumCPU()
 	//如果配置文件没有加载就是默认值
 	GlobalConfObject = &GlobalObj{
 		Name:             "ServerApp",
 		Version:          "V1.0",
 		Host:             "0.0.0.0",
 		TcpPort:          9991,
-		WorkerPoolSize:   10,
+		WorkerPoolSize:   uint32(WorkerPoolSize),
 		MaxConn:          10000,
 		MaxPacketSize:    4096,
 		MaxWorkerTaskLen: 1024,

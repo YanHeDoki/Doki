@@ -78,14 +78,14 @@ func (d *DataPack) UnPack(conn io.Reader) (dokiIF.IMessage, error) {
 	}
 
 	//根据datalen的参数再去读取一次
-	var data []byte
+	var Undata []byte
 	if msg.GetDataLen() > 0 {
-		data = make([]byte, msg.GetDataLen())
-		if _, err := io.ReadFull(conn, data); err != nil {
+		Undata = make([]byte, msg.GetDataLen())
+		if _, err := io.ReadFull(conn, Undata); err != nil {
 			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("read data err:%s", err.Error()))
 			return nil, err
 		}
 	}
-	msg.SetData(data)
+	msg.SetData(Undata)
 	return msg, nil
 }

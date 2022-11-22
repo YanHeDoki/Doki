@@ -3,7 +3,6 @@ package doki
 import (
 	"fmt"
 	"github.com/YanHeDoki/Doki/dokiIF"
-	"github.com/YanHeDoki/Doki/pack"
 	BaseLog "github.com/YanHeDoki/Doki/utils/log"
 	"net"
 )
@@ -19,17 +18,17 @@ type UdpServer struct {
 	exitChan chan struct{}
 	//当前的对象添加一个router server注册的链接对应的业务
 	//当前Server的消息管理模块，用来绑定MsgId和对应的router
-	MsgHandler dokiIF.IUdpMsgHandle
+	MsgHandler dokiIF.IMsgHandle
 	//拆封包工具
-	packet dokiIF.IUdpDataPack
+	packet dokiIF.IDataPack
 }
 
-func NewUdpServer(IP string, Prot int, pack dokiIF.IUdpDataPack) dokiIF.IUdpServer {
+func NewUdpServer(IP string, Prot int, pack dokiIF.IDataPack) dokiIF.IUdpServer {
 	return &UdpServer{
 		IP:         IP,
 		Port:       Prot,
 		exitChan:   nil,
-		MsgHandler: NewUdpMsgHandle(),
+		MsgHandler: NewMsgHandle(),
 		packet:     pack,
 	}
 }
@@ -59,19 +58,14 @@ func (u *UdpServer) Start() {
 		go func() {
 			//阻塞的等待客户端的连接 处理客户端的链接业务（读写）
 			for {
-				ReadUdp := make([]byte, 4096)
-				n, addr, err := listen.ReadFromUDP(ReadUdp)
-				if err != nil {
-					BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("ReadFromUDP err:%s", err))
-					continue
-				}
-				id, data, err := u.GetPacket().UnPack(ReadUdp[:n], addr)
+
+				message, err := u.GetPacket().UnPack(listen)
 				if err != nil {
 					BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("UnPack err:%s", err))
 					continue
 				}
-				go u.MsgHandler.DoMsgHandler(&Request{
-					msg:     pack.NewMsgPackage(id, data),
+				u.MsgHandler.DoMsgHandler(&Request{
+					msg:     message,
 					udpConn: listen,
 				})
 			}
@@ -104,7 +98,7 @@ func (u *UdpServer) AddRouter(msgid uint32, router ...dokiIF.RouterHandler) {
 	u.MsgHandler.AddRouter(msgid, router...)
 }
 
-func (u *UdpServer) GetPacket() dokiIF.IUdpDataPack {
+func (u *UdpServer) GetPacket() dokiIF.IDataPack {
 	return u.packet
 }
 

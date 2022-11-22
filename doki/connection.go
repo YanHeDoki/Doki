@@ -63,7 +63,6 @@ func (c *Connection) StartReader() {
 		case <-c.ctx.Done():
 			return
 		default: //否则就普通业务操作
-
 			message, err := c.TcpServer.GetPacket().UnPack(c.Conn)
 			if err != nil {
 				BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("UnPack err:%s", err))
