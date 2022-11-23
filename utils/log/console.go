@@ -28,16 +28,16 @@ type Logger struct {
 }
 
 func (l *Logger) DokiLog(LogLv, LogStr string) {
-	//switch LogLv {
-	//case "debug":
-	//	l.Debug(LogStr)
-	//case "info":
-	//	l.Info(LogStr)
-	//case "warning":
-	//	l.Warning(LogStr)
-	//case "error":
-	//	l.Error(LogStr)
-	//}
+	switch LogLv {
+	case "debug":
+		l.Debug(LogStr)
+	case "info":
+		l.Info(LogStr)
+	case "warning":
+		l.Warning(LogStr)
+	case "error":
+		l.Error(LogStr)
+	}
 }
 
 //把传入的等级转换成可以比较的等级
