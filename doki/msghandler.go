@@ -33,7 +33,7 @@ func (m *MsgHandle) DoMsgHandler(request dokiIF.IRequest) {
 	}
 	request.BindRouter(router)
 	router.Reindx()
-	go router.Next(request)
+	router.Next(request)
 }
 
 func (m *MsgHandle) AddRouter(msgId uint32, handler ...dokiIF.RouterHandler) {

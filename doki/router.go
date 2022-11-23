@@ -1,6 +1,8 @@
 package doki
 
-import "github.com/YanHeDoki/Doki/dokiIF"
+import (
+	"github.com/YanHeDoki/Doki/dokiIF"
+)
 
 type Router struct {
 	index    int8 //函数索引

@@ -15,7 +15,7 @@ type notify struct {
 
 func NewNotify() *notify {
 	return &notify{
-		cimap: make(map[uint64]dokiIF.IConnection, 100),
+		cimap: make(map[uint64]dokiIF.IConnection, 1000),
 	}
 }
 
@@ -70,6 +70,34 @@ func (n *notify) NotifyAll(MsgId uint32, data []byte) error {
 			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Notify to %d err:%s", Id, err))
 			return err
 		}
+	}
+	return nil
+}
+
+func (n *notify) notifyAll(MsgId uint32, data []byte) error {
+	n.RLock()
+	defer n.RUnlock()
+	for Id, v := range n.cimap {
+		err := v.SendMsg(MsgId, data)
+		if err != nil {
+			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Notify to %d err:%s", Id, err))
+			return err
+		}
+	}
+	return nil
+}
+
+//极端情况 同时加入和发送的人很多需要尽快释放map的情况， 目前问题很多不采用
+func (n *notify) notifyAll2(MsgId uint32, data []byte) error {
+	conns := make([]dokiIF.IConnection, 0, len(n.cimap))
+	n.RLock()
+	for _, v := range n.cimap {
+		conns = append(conns, v)
+	}
+	n.RUnlock()
+
+	for i := 0; i < len(conns); i++ {
+		conns[i].SendMsg(MsgId, data)
 	}
 	return nil
 }
