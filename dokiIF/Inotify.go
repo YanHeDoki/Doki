@@ -2,6 +2,10 @@ package dokiIF
 
 type Inotify interface {
 	HasIdConn(id uint64) bool
+
+	SetNotifyID(Id uint64, conn IConnection)
+	GetNotifyByID(Id uint64) (IConnection, error)
+	DelNotifyByID(Id uint64)
 	//通知某个id的方法
 	NotifyToConnByID(Id uint64, MsgId uint32, data []byte) error
 	//通知所有人
