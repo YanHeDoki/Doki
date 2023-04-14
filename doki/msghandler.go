@@ -1,6 +1,7 @@
 package doki
 
 import (
+	"fmt"
 	"github.com/YanHeDoki/Doki/conf"
 	"github.com/YanHeDoki/Doki/dokiIF"
 	BaseLog "github.com/YanHeDoki/Doki/utils/log"
@@ -22,8 +23,13 @@ func NewMsgHandle() *MsgHandle {
 	}
 }
 
-//尝试修改msghandler
+// 尝试修改msghandler
 func (m *MsgHandle) DoMsgHandler(request dokiIF.IRequest) {
+	defer func() {
+		if err := recover(); err != nil {
+			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("doMsgHandler panic %v /n:", err))
+		}
+	}()
 	m.RLock()
 	router, ok := m.Apis[request.GetMsgId()]
 	m.RUnlock()

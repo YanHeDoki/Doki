@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-//当前链接模块
+// 当前链接模块
 type Connection struct {
 	//当前链接隶属于哪个Server
 	TcpServer dokiIF.IServer
@@ -38,7 +38,7 @@ type Connection struct {
 	propertyLock sync.RWMutex
 }
 
-//NewConnection 创建连接的方法
+// NewConnection 创建连接的方法
 func NewConnection(server dokiIF.IServer, conn *net.TCPConn, ConnID uint32) *Connection {
 	c := &Connection{
 		TcpServer:   server,
@@ -56,6 +56,12 @@ func (c *Connection) StartReader() {
 
 	BaseLog.DefaultLog.DokiLog("debug", "Reader Server start ....")
 	defer c.Stop()
+
+	defer func() {
+		if err := recover(); err != nil {
+			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("panic conid=%d err=%s \n", c.ConnID, err))
+		}
+	}()
 
 	for {
 		//检测是否关闭连接
@@ -88,7 +94,7 @@ func (c *Connection) StartReader() {
 }
 
 /*
-	写消息Goroutine， 用户将数据发送给客户端
+写消息Goroutine， 用户将数据发送给客户端
 */
 func (c *Connection) StartWrite() {
 	BaseLog.DefaultLog.DokiLog("debug", "Writer Goroutine is running")
@@ -102,7 +108,7 @@ func (c *Connection) StartWrite() {
 				//有数据要写给客户端
 				if _, err := c.Conn.Write(data); err != nil {
 					BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("Send Buff Data error:%s Conn Writer exit", err))
-					return
+					break
 				}
 			} else {
 				BaseLog.DefaultLog.DokiLog("warning", "MsgBuffChan is Closed")
@@ -116,8 +122,14 @@ func (c *Connection) StartWrite() {
 	}
 }
 
-//启动连接
+// 启动连接
 func (c *Connection) Start() {
+	defer func() {
+		if err := recover(); err != nil {
+			BaseLog.DefaultLog.DokiLog("error", "Connection start panic")
+		}
+	}()
+
 	BaseLog.DefaultLog.DokiLog("debug", fmt.Sprintf("conn starting...ConnID=%d", c.ConnID))
 	c.ctx, c.cancel = context.WithCancel(context.Background())
 	//调用开发者设置的启动前的钩子函数
@@ -154,7 +166,7 @@ func (c *Connection) RemoteAddr() net.Addr {
 	return c.Conn.RemoteAddr()
 }
 
-//SendMsg 直接将Message数据发送数据给远程的TCP客户端
+// SendMsg 直接将Message数据发送数据给远程的TCP客户端
 func (c *Connection) SendMsg(msgId uint32, data []byte) error {
 	c.RLock()
 	defer c.RUnlock()
@@ -173,7 +185,7 @@ func (c *Connection) SendMsg(msgId uint32, data []byte) error {
 	return err
 }
 
-//带缓冲发送消息
+// 带缓冲发送消息
 func (c *Connection) SendBuffMsg(msgId uint32, data []byte) error {
 	c.RLock()
 	defer c.RUnlock()
