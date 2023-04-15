@@ -38,8 +38,7 @@ func (m *MsgHandle) DoMsgHandler(request dokiIF.IRequest) {
 		return
 	}
 	request.BindRouter(router)
-	router.Reindx()
-	router.Next(request)
+	request.Next()
 }
 
 func (m *MsgHandle) AddRouter(msgId uint32, handler ...dokiIF.RouterHandler) {
@@ -76,12 +75,16 @@ func (m *MsgHandle) StartWorkerPool() {
 func (m *MsgHandle) startOneWorker(workerId uint32) {
 
 	//不断的阻塞去等代消息
-	for {
-		select {
-		//根据id去结构体中取到对应的消息队列来消费，如果管道中有消息的话
-		case req := <-m.TaskQueue[workerId]:
-			m.DoMsgHandler(req)
-		}
+	for i := 0; i < 3; i++ {
+		go func() {
+			for {
+				select {
+				//根据id去结构体中取到对应的消息队列来消费，如果管道中有消息的话
+				case req := <-m.TaskQueue[workerId]:
+					m.DoMsgHandler(req)
+				}
+			}
+		}()
 	}
 
 }

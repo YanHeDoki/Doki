@@ -47,13 +47,13 @@ type Server struct {
 	packet dokiIF.IDataPack
 }
 
-//DefaultServer 初始化默认server服务器方法
+// DefaultServer 初始化默认server服务器方法
 func DefaultServer() dokiIF.IServer {
 	//读取配置
 	conf.ConfigInit()
 	//打印logo
 	printLogo()
-	BaseLog.DefaultLog = BaseLog.NewLog("debug")
+	BaseLog.DefaultLog = BaseLog.NewLog("info")
 	return &Server{ //报错不能返回这个类型
 		Name:       conf.GlobalConfObject.Name,
 		IPVersion:  "tcp",
@@ -86,7 +86,7 @@ func NewServer(config *conf.Config) dokiIF.IServer {
 		s.packet = config.UserPack
 	}
 	if config.Log == nil {
-		BaseLog.DefaultLog = BaseLog.NewLog("debug")
+		BaseLog.DefaultLog = BaseLog.NewLog("info")
 	} else {
 		BaseLog.DefaultLog = config.Log
 	}
@@ -184,7 +184,7 @@ func (s *Server) Server() {
 	select {}
 }
 
-//新方法
+// 新方法
 func (s *Server) AddRouter(msgId uint32, router ...dokiIF.RouterHandler) {
 	s.MsgHandler.AddRouter(msgId, router...)
 }

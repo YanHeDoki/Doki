@@ -34,7 +34,7 @@ type GlobalObj struct {
 	ConfFilePath string
 }
 
-//定义一个全局的对外GlobalObj对象
+// 定义一个全局的对外GlobalObj对象
 var GlobalConfObject *GlobalObj
 
 func pathExists(path string) (bool, error) {
@@ -66,17 +66,17 @@ func (g *GlobalObj) Reload() {
 	//Logger 设置
 }
 
-//提供一个Init方法初始化当前的全局对象
+// 提供一个Init方法初始化当前的全局对象
 func ConfigInit() {
 	WorkerPoolSize := runtime.NumCPU()
 	//如果配置文件没有加载就是默认值
 	GlobalConfObject = &GlobalObj{
 		Name:             "ServerApp",
 		Version:          "V1.0",
-		Host:             "0.0.0.0",
-		TcpPort:          9991,
+		Host:             "127.0.0.1",
+		TcpPort:          9512,
 		WorkerPoolSize:   uint32(WorkerPoolSize),
-		MaxConn:          10000,
+		MaxConn:          1000000,
 		MaxPacketSize:    4096,
 		MaxWorkerTaskLen: 1024,
 		MaxMsgChanLen:    100,

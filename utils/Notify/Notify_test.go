@@ -27,9 +27,9 @@ func Server() {
 func Clinet() {
 	//conf.ConfigInit()
 	//1创建直接链接
-	for i := 0; i < 9000; i++ {
+	for i := 0; i < 6500; i++ {
 		go func(i int) {
-			conn, err := net.Dial("tcp", "127.0.0.1:9991")
+			conn, err := net.Dial("tcp", "127.0.0.1:9512")
 			if err != nil {
 				fmt.Println("net dial err:", err)
 				return
@@ -50,13 +50,14 @@ func Clinet() {
 			select {}
 			//fmt.Println("==> Recv Msg: ID=", NewMsg.GetMsgId(), ", len=", NewMsg.GetDataLen(), ", data=", string(NewMsg.GetData()))
 		}(i)
+		//time.Sleep(1 * time.Nanosecond)
 	}
 }
 
 func init() {
 	go Server()
 	go Clinet()
-	go ClinetJoin()
+	//go ClinetJoin()
 }
 
 func ClinetJoin() {
@@ -66,7 +67,7 @@ func ClinetJoin() {
 		select {
 		case <-t.C:
 			go func(i int) {
-				conn, err := net.Dial("tcp", "127.0.0.1:9991")
+				conn, err := net.Dial("tcp", "127.0.0.1:9512")
 				if err != nil {
 					fmt.Println("net dial err:", err)
 					return
@@ -101,10 +102,10 @@ func TestAA(t *testing.T) {
 }
 
 func BenchmarkNotify(b *testing.B) {
-	time.Sleep(5 * time.Second)
+	time.Sleep(6 * time.Second)
+	fmt.Println(len(nt.cimap))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		nt.NotifyAll(1, []byte("我都瞎写的的一些数据要多少就写度搜好吧啊啊啊的加我的加速计调爱我的我爱仕达无多asdawdawdadaw"))
+		nt.NotifyAll(1, []byte("雪下的是盐"))
 	}
-	fmt.Println(len(nt.cimap))
 }
