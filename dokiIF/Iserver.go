@@ -14,6 +14,7 @@ type IServer interface {
 	AddRouter(msgid uint32, router ...RouterHandler) IRouter
 	//路由组管理
 	Group(start, end uint32, Handlers ...RouterHandler) IGroupRouter
+	Use(Handlers ...RouterHandler) IRouter
 	//返回连接资源管理器
 	GetConnMgr() IConnManager
 	//GetMsgHandler 获取MsgHandler管理器避免再复制一次

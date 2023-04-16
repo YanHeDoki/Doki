@@ -25,6 +25,7 @@ type GlobalObj struct {
 	MaxConn          int    //最大连接数量
 	MaxPacketSize    uint32 //当前框架数据包的最大尺寸
 	WorkerPoolSize   uint32 //业务工作Worker池的数量
+	DoMsgHandlerNum  int    //一个消息池子多少个线程去执行任务
 	MaxWorkerTaskLen uint32 //业务工作Worker对应负责的任务队列最大任务存储数量
 	MaxMsgChanLen    uint32 //SendBuffMsg发送消息的缓冲最大长度
 	PacketName       string //解包名称
@@ -76,6 +77,7 @@ func ConfigInit() {
 		Host:             "127.0.0.1",
 		TcpPort:          9512,
 		WorkerPoolSize:   uint32(WorkerPoolSize),
+		DoMsgHandlerNum:  3,
 		MaxConn:          1000000,
 		MaxPacketSize:    4096,
 		MaxWorkerTaskLen: 1024,
@@ -95,6 +97,7 @@ func UserConfInit(config *Config) {
 		Host:             config.Host,
 		TcpPort:          config.TcpPort,
 		WorkerPoolSize:   config.WorkerPoolSize,
+		DoMsgHandlerNum:  config.DoMsgHandlerNum,
 		MaxConn:          config.MaxConn,
 		MaxPacketSize:    config.MaxPacketSize,
 		MaxWorkerTaskLen: config.MaxWorkerTaskLen,

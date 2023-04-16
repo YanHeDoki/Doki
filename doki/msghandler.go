@@ -26,7 +26,7 @@ func NewMsgHandle() *MsgHandle {
 func (m *MsgHandle) DoMsgHandler(request dokiIF.IRequest) {
 	defer func() {
 		if err := recover(); err != nil {
-			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("doMsgHandler panic %v /n:", err))
+			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("doMsgHandler panic %v :", err))
 		}
 	}()
 	handlers, ok := m.Router.GetHandlers(request.GetMsgId())
@@ -46,6 +46,10 @@ func (m *MsgHandle) AddRouter(msgId uint32, handler ...dokiIF.RouterHandler) dok
 
 func (m *MsgHandle) Group(start, end uint32, Handlers ...dokiIF.RouterHandler) dokiIF.IGroupRouter {
 	return NewGroup(start, end, m.Router, Handlers...)
+}
+func (m *MsgHandle) Use(Handlers ...dokiIF.RouterHandler) dokiIF.IRouter {
+	m.Router.Use(Handlers...)
+	return m.Router
 }
 
 func (m *MsgHandle) StartWorkerPool() {
@@ -70,7 +74,7 @@ func (m *MsgHandle) StartWorkerPool() {
 func (m *MsgHandle) startOneWorker(workerId uint32) {
 
 	//不断的阻塞去等代消息
-	for i := 0; i < 3; i++ {
+	for i := 0; i < conf.GlobalConfObject.DoMsgHandlerNum; i++ {
 		go func() {
 			for {
 				select {

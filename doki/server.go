@@ -193,6 +193,9 @@ func (s *Server) AddRouter(msgId uint32, router ...dokiIF.RouterHandler) dokiIF.
 func (s *Server) Group(start, end uint32, Handlers ...dokiIF.RouterHandler) dokiIF.IGroupRouter {
 	return s.MsgHandler.Group(start, end, Handlers...)
 }
+func (s *Server) Use(Handlers ...dokiIF.RouterHandler) dokiIF.IRouter {
+	return s.MsgHandler.Use(Handlers...)
+}
 
 func (s *Server) GetConnMgr() dokiIF.IConnManager {
 	return s.ConnMgr
