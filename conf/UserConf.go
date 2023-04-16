@@ -24,5 +24,6 @@ type Config struct {
 	MaxMsgChanLen    uint32           //SendBuffMsg发送消息的缓冲最大长度
 	UserPack         dokiIF.IDataPack //用户自定义封解包
 
-	Log BaseLog.Ilog
+	Log      BaseLog.Ilog
+	LogLevel string
 }

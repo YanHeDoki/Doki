@@ -39,7 +39,6 @@ func (m *MsgHandle) DoMsgHandler(request dokiIF.IRequest) {
 }
 
 func (m *MsgHandle) AddRouter(msgId uint32, handler ...dokiIF.RouterHandler) dokiIF.IRouter {
-	//1 判断当前msg绑定的API处理方法是否已经存在
 	m.Router.AddHandler(msgId, handler...)
 	return m.Router
 }

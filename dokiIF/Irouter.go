@@ -2,7 +2,6 @@ package dokiIF
 
 // 路由接口
 // 路由里的接口都是IRequest
-// 尝试修改中
 type RouterHandler func(request IRequest)
 
 type IRouter interface {

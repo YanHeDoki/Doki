@@ -33,6 +33,7 @@ type GlobalObj struct {
 		config file path
 	*/
 	ConfFilePath string
+	Loglevel     string
 }
 
 // 定义一个全局的对外GlobalObj对象
@@ -83,6 +84,7 @@ func ConfigInit() {
 		MaxWorkerTaskLen: 1024,
 		MaxMsgChanLen:    100,
 		PacketName:       constants.StdDataPack,
+		Loglevel:         "info",
 	}
 
 	//应该尝试从配置文件中的用户自定义的文件中读取
@@ -90,17 +92,50 @@ func ConfigInit() {
 }
 
 func UserConfInit(config *Config) {
+
+	//先使用默认配置
+	ConfigInit()
+
 	//如果配置文件没有加载就是默认值
-	GlobalConfObject = &GlobalObj{
-		Name:             config.Name,
-		Version:          config.Version,
-		Host:             config.Host,
-		TcpPort:          config.TcpPort,
-		WorkerPoolSize:   config.WorkerPoolSize,
-		DoMsgHandlerNum:  config.DoMsgHandlerNum,
-		MaxConn:          config.MaxConn,
-		MaxPacketSize:    config.MaxPacketSize,
-		MaxWorkerTaskLen: config.MaxWorkerTaskLen,
-		MaxMsgChanLen:    config.MaxMsgChanLen,
+	// Server
+	if config.Name != "" {
+		GlobalConfObject.Name = config.Name
 	}
+	if config.Host != "" {
+		GlobalConfObject.Host = config.Host
+	}
+	if config.TcpPort != 0 {
+		GlobalConfObject.TcpPort = config.TcpPort
+	}
+	if config.Version != "" {
+		GlobalConfObject.Version = config.Version
+	}
+
+	//选择配置
+	if config.MaxPacketSize != 0 {
+		GlobalConfObject.MaxPacketSize = config.MaxPacketSize
+	}
+	if config.MaxConn != 0 {
+		GlobalConfObject.MaxConn = config.MaxConn
+	}
+	if config.WorkerPoolSize != 0 {
+		GlobalConfObject.WorkerPoolSize = config.WorkerPoolSize
+	}
+	if config.MaxWorkerTaskLen != 0 {
+		GlobalConfObject.MaxWorkerTaskLen = config.MaxWorkerTaskLen
+	}
+	if config.MaxMsgChanLen != 0 {
+		GlobalConfObject.MaxMsgChanLen = config.MaxMsgChanLen
+	}
+	if config.DoMsgHandlerNum != 0 {
+		GlobalConfObject.DoMsgHandlerNum = config.DoMsgHandlerNum
+	}
+	if config.LogLevel != "" {
+		GlobalConfObject.Loglevel = config.LogLevel
+	}
+}
+
+// 注意如果使用UserConf应该调用方法同步至 GlobalConfObject 因为其他参数是调用的此结构体参数
+func UserConfToGlobal(config *Config) {
+
 }

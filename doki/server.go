@@ -86,7 +86,7 @@ func NewServer(config *conf.Config) dokiIF.IServer {
 		s.packet = config.UserPack
 	}
 	if config.Log == nil {
-		BaseLog.DefaultLog = BaseLog.NewLog("info")
+		BaseLog.DefaultLog = BaseLog.NewLog(config.LogLevel)
 	} else {
 		BaseLog.DefaultLog = config.Log
 	}

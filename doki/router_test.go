@@ -37,11 +37,11 @@ func TestRouterAdd(t *testing.T) {
 
 	for _, v := range router.Apis[2] {
 		v(&Request{
-			conn:    nil,
-			udpConn: nil,
-			msg:     nil,
-			handles: nil,
-			index:   -1,
+			conn:     nil,
+			udpConn:  nil,
+			msg:      nil,
+			handlers: nil,
+			index:    -1,
 		})
 	}
 }
