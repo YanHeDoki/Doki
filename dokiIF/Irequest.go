@@ -15,7 +15,7 @@ type IRequest interface {
 	//得到消息id
 	GetMsgId() uint32
 
-	BindRouter(IRouter)
+	BindRouter([]RouterHandler)
 	//执行下一个函数
 	Next()
 	//终结路由函数的执行

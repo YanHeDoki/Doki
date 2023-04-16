@@ -185,8 +185,13 @@ func (s *Server) Server() {
 }
 
 // 新方法
-func (s *Server) AddRouter(msgId uint32, router ...dokiIF.RouterHandler) {
-	s.MsgHandler.AddRouter(msgId, router...)
+func (s *Server) AddRouter(msgId uint32, router ...dokiIF.RouterHandler) dokiIF.IRouter {
+	return s.MsgHandler.AddRouter(msgId, router...)
+}
+
+// 路由组管理
+func (s *Server) Group(start, end uint32, Handlers ...dokiIF.RouterHandler) dokiIF.IGroupRouter {
+	return s.MsgHandler.Group(start, end, Handlers...)
 }
 
 func (s *Server) GetConnMgr() dokiIF.IConnManager {

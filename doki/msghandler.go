@@ -5,12 +5,11 @@ import (
 	"github.com/YanHeDoki/Doki/conf"
 	"github.com/YanHeDoki/Doki/dokiIF"
 	BaseLog "github.com/YanHeDoki/Doki/utils/log"
-	"strconv"
 	"sync"
 )
 
 type MsgHandle struct {
-	Apis           map[uint32]*Router     //路由模块
+	Router         *Router                //路由模块
 	WorkerPoolSize uint32                 //业务工作Worker池的数量
 	TaskQueue      []chan dokiIF.IRequest //Worker负责取任务的消息队列
 	sync.RWMutex
@@ -18,7 +17,7 @@ type MsgHandle struct {
 
 func NewMsgHandle() *MsgHandle {
 	return &MsgHandle{
-		Apis:           make(map[uint32]*Router, 15),
+		Router:         NewRouter(),
 		WorkerPoolSize: conf.GlobalConfObject.WorkerPoolSize, //注意一个消息队列对应一个worker池子
 	}
 }
@@ -30,27 +29,23 @@ func (m *MsgHandle) DoMsgHandler(request dokiIF.IRequest) {
 			BaseLog.DefaultLog.DokiLog("error", fmt.Sprintf("doMsgHandler panic %v /n:", err))
 		}
 	}()
-	m.RLock()
-	router, ok := m.Apis[request.GetMsgId()]
-	m.RUnlock()
+	handlers, ok := m.Router.GetHandlers(request.GetMsgId())
 	if !ok {
-		BaseLog.DefaultLog.DokiLog("warning", "not find Router In Apis")
+		BaseLog.DefaultLog.DokiLog("warning", fmt.Sprintf("api msgID = %d is not FOUND!", request.GetMsgId()))
 		return
 	}
-	request.BindRouter(router)
+	request.BindRouter(handlers)
 	request.Next()
 }
 
-func (m *MsgHandle) AddRouter(msgId uint32, handler ...dokiIF.RouterHandler) {
+func (m *MsgHandle) AddRouter(msgId uint32, handler ...dokiIF.RouterHandler) dokiIF.IRouter {
 	//1 判断当前msg绑定的API处理方法是否已经存在
-	if _, ok := m.Apis[msgId]; ok {
-		panic("repeated api , msgId = " + strconv.Itoa(int(msgId)))
-	}
+	m.Router.AddHandler(msgId, handler...)
+	return m.Router
+}
 
-	//优化一次完成再存入map
-	r := NewRouter()
-	r.AddHandler(handler...)
-	m.Apis[msgId] = r
+func (m *MsgHandle) Group(start, end uint32, Handlers ...dokiIF.RouterHandler) dokiIF.IGroupRouter {
+	return NewGroup(start, end, m.Router, Handlers...)
 }
 
 func (m *MsgHandle) StartWorkerPool() {

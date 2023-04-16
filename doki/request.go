@@ -13,8 +13,9 @@ type Request struct {
 	udpConn *net.UDPConn
 	//客户端请求的数据
 	msg dokiIF.IMessage
-	//组合路由接口
-	Router dokiIF.IRouter
+	//组合路由操作
+	handles []dokiIF.RouterHandler
+	index   int8
 }
 
 func (r *Request) GetUdpConn() *net.UDPConn {
@@ -41,18 +42,24 @@ func (r *Request) GetMsgId() uint32 {
 	return r.msg.GetMsgId()
 }
 
-func (r *Request) BindRouter(router dokiIF.IRouter) {
-	r.Router = router
+func (r *Request) BindRouter(handlers []dokiIF.RouterHandler) {
+	r.handles = handlers
+	r.index = -1
 }
 
 func (r *Request) Next() {
-	r.Router.Next(r)
+	r.index++
+	for r.index < int8(len(r.handles)) {
+		r.handles[r.index](r)
+		r.index++
+	}
+	//r.index = -1
 }
 
 func (r *Request) Abort() {
-	r.Router.Abort()
+	r.index = int8(len(r.handles))
 }
 
 func (r *Request) IsAbort() bool {
-	return r.Router.IsAbort()
+	return r.index >= int8(len(r.handles))
 }

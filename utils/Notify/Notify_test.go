@@ -27,7 +27,7 @@ func Server() {
 func Clinet() {
 	//conf.ConfigInit()
 	//1创建直接链接
-	for i := 0; i < 6500; i++ {
+	for i := 0; i < 7000; i++ {
 		go func(i int) {
 			conn, err := net.Dial("tcp", "127.0.0.1:9512")
 			if err != nil {

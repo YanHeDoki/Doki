@@ -11,7 +11,9 @@ type IServer interface {
 	Server()
 
 	//新路由功能：给当前的服务器注册一个路由方法。供客户端的链接处理使用
-	AddRouter(msgid uint32, router ...RouterHandler)
+	AddRouter(msgid uint32, router ...RouterHandler) IRouter
+	//路由组管理
+	Group(start, end uint32, Handlers ...RouterHandler) IGroupRouter
 	//返回连接资源管理器
 	GetConnMgr() IConnManager
 	//GetMsgHandler 获取MsgHandler管理器避免再复制一次

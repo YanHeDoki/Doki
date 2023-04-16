@@ -18,7 +18,7 @@ type Connection struct {
 	//当前链接隶属于哪个Server
 	TcpServer dokiIF.IServer
 	//当前链接的 socket tcp 套接字
-	Conn *net.TCPConn
+	Conn net.Conn
 	//链接的ID 也可以称作为SessionID，ID全局唯一
 	ConnID uint32
 
@@ -39,7 +39,7 @@ type Connection struct {
 }
 
 // NewConnection 创建连接的方法
-func NewConnection(server dokiIF.IServer, conn *net.TCPConn, ConnID uint32) *Connection {
+func NewConnection(server dokiIF.IServer, conn net.Conn, ConnID uint32) *Connection {
 	c := &Connection{
 		TcpServer:   server,
 		Conn:        conn,
@@ -151,7 +151,7 @@ func (c *Connection) Stop() {
 	c.cancel()
 }
 
-func (c *Connection) GetTcpConnection() *net.TCPConn {
+func (c *Connection) GetConnection() net.Conn {
 	return c.Conn
 }
 func (c *Connection) GetContext() context.Context {

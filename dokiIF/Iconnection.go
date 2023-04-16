@@ -12,7 +12,7 @@ type IConnection interface {
 	//停止链接方法
 	Stop()
 	//获取当前链接绑定的socket
-	GetTcpConnection() *net.TCPConn
+	GetConnection() net.Conn
 	//返回ctx，用于用户自定义的go程获取连接退出状态
 	GetContext() context.Context
 	//获取当前链接模块的链接ID
